@@ -20,17 +20,17 @@ namespace MyLang
 
         public IList<Token> Tokenize(string src)
         {
-            var test = new List<string>();
+            var now_character = new List<string>();
             foreach (char s in src)
                 if(s!=' ')
-                    test.Add(s.ToString());
+                    now_character.Add(s.ToString());
             // TODO: 仮のダミー実装
             var dummy = new List<Token>();
             bool is_number = false;
-            var numList = new List<string>();
-            for (int i = 0; i <test.Count; i++)
+            var single_word = new List<string>();
+            for (int i = 0; i <now_character.Count; i++)
             {
-                switch (test[i])
+                switch (now_character[i])
                 {
                     case "+":
                         dummy.Add(new Token(TokenType.Plus, "+"));
@@ -42,10 +42,12 @@ namespace MyLang
                         dummy.Add(new Token(TokenType.Star, "*"));
                         break;
                     case "/":
-                        if(test[i+1]!="/"&&test[i+1]!="*")
+                        //　// と /*　どっちらもない
+                        if(now_character[i+1]!="/"&&now_character[i+1]!="*")
                             dummy.Add(new Token(TokenType.Slash, "/"));
-                        else if (test[i + 1] == "/")
+                        else if (now_character[i + 1] == "/")
                         {
+                            //  //の時に　後ろ全部無視する
                             dummy.Add(new Token(TokenType.Terminate, "[EOF]"));
                             return dummy;
                         }
@@ -54,7 +56,7 @@ namespace MyLang
                             i += 2;
                             while (true)
                             {
-                                if (test[i] == "/" && test[i-1] == "*")
+                                if (now_character[i] == "/" && now_character[i-1] == "*")
                                     break;
                                 else
                                     i++;
@@ -64,23 +66,33 @@ namespace MyLang
                         break;
                     default:
                         int num = 0;
-                         is_number = int.TryParse(test[i], out num);
+                         is_number = int.TryParse(now_character[i], out num);
                         if(!is_number)//not number
                         {
-                            dummy.Add(new Token(TokenType.Symbol, test[i]));
+                            while (i < now_character.Count && Char.IsLetter(now_character[i].ToCharArray()[0]))
+                            {
+                                single_word.Add(now_character[i++]);
+                                if (i == now_character.Count)
+                                    break;
+                            }
+                            if (i < now_character.Count - 1)
+                                i -= 1;
+                            dummy.Add(new Token(TokenType.Symbol, string.Join("", single_word.ToArray())));
+                            single_word.Clear();
+                            //dummy.Add(new Token(TokenType.Symbol, now_character[i]));
                         }
                         else // is number
                         {
-                            while (i<test.Count && int.TryParse(test[i], out num))
+                            while (i<now_character.Count && int.TryParse(now_character[i], out num))
                             {
-                                numList.Add(test[i++]);
-                                if (i == test.Count)
+                                single_word.Add(now_character[i++]);
+                                if (i == now_character.Count)
                                     break;
                             }
-                            if(i<test.Count-1)
+                            if(i<now_character.Count-1)
                                 i -= 1;
-                            dummy.Add(new Token(TokenType.Number, string.Join("",numList.ToArray())));
-                            numList.Clear(); 
+                            dummy.Add(new Token(TokenType.Number, string.Join("",single_word.ToArray())));
+                            single_word.Clear(); 
                         }
                         break;
                 }
