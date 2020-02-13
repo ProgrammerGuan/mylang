@@ -37,6 +37,13 @@ namespace MyLang
         }
 
         public bool IsNumber => (Type == TokenType.Number);
+
+        //public bool IsNumber
+        //{
+        //    get { return (Type == TokenType.Number); }
+        //}
+
+
         public bool IsSymbol => (Type == TokenType.Symbol);
         public bool IsBinaryOperator => (Type == TokenType.Plus || Type == TokenType.Minus || Type == TokenType.Star || Type == TokenType.Slash);
     }

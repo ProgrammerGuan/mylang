@@ -55,7 +55,7 @@ class Program
         ITokenizer tokenizer = new SpaceSeparatedTokenizer();
         var parser = new Parser();
         var interpreter = new Interpreter();
-
+        
         // Tokenize を行う
         var tokens = tokenizer.Tokenize(string.Join(" ", rest.ToArray()));
 
