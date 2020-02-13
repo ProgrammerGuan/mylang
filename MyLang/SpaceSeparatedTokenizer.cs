@@ -43,7 +43,13 @@ namespace MyLang
                         break;
                     case "/":
                         //　// と /*　どっちらもない
-                        if(now_character[i+1]!="/"&&now_character[i+1]!="*")
+                        if (i + 1 >= now_character.Count)
+                        {
+                            dummy.Add(new Token(TokenType.Slash, "/"));
+                            dummy.Add(new Token(TokenType.Terminate, "[EOF]"));
+                            return dummy;
+                        }
+                        if (now_character[i+1]!="/"&&now_character[i+1]!="*")
                             dummy.Add(new Token(TokenType.Slash, "/"));
                         //　　//の時
                         else if (now_character[i + 1] == "/")
@@ -103,7 +109,7 @@ namespace MyLang
                 }
             }
             
-            dummy.Add(new Token(TokenType.Terminate, "[EOF]"));
+              dummy.Add(new Token(TokenType.Terminate, "[EOF]"));
             return dummy;
         }
 
