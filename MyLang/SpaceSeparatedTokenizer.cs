@@ -42,7 +42,25 @@ namespace MyLang
                         dummy.Add(new Token(TokenType.Star, "*"));
                         break;
                     case "/":
-                        dummy.Add(new Token(TokenType.Slash, "/"));
+                        if(test[i+1]!="/"&&test[i+1]!="*")
+                            dummy.Add(new Token(TokenType.Slash, "/"));
+                        else if (test[i + 1] == "/")
+                        {
+                            dummy.Add(new Token(TokenType.Terminate, "[EOF]"));
+                            return dummy;
+                        }
+                        else  // /* の時に
+                        {
+                            i += 2;
+                            while (true)
+                            {
+                                if (test[i] == "/" && test[i-1] == "*")
+                                    break;
+                                else
+                                    i++;
+                            }
+
+                        }
                         break;
                     default:
                         int num = 0;
