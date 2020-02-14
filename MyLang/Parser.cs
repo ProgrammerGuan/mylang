@@ -48,11 +48,15 @@ namespace MyLang
             pos_ = 0;
 
             // TODO: 仮のダミー実装
+            
             var lhs = new Ast.Number(1);
             var rhs = new Ast.Number(2);
             var ast = new Ast.BinOp(Ast.BinOpType.Add, lhs, rhs);
 
             return ast;
         }
+        
+        
+
     }
 }
