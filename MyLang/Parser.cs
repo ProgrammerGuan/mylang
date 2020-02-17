@@ -30,6 +30,7 @@ namespace MyLang
         /// <returns></returns>
         Token currentToken()
         {
+            if (pos_ >= tokens_.Count) return null;
             return tokens_[pos_];
         }
 
@@ -60,50 +61,53 @@ namespace MyLang
         private Ast.Exp Exp1()
         {
             var lhs = Exp2();
-            if (lhs == null)
-                return null;
+            if (lhs == null) return null;
+            else return Exp1_Rest(lhs);
+        }
+
+        private Ast.Exp Exp1_Rest(Ast.Exp lhs)
+        {
             var token = currentToken();
+            if (token == null)
+                return lhs;
             if (token.Type == TokenType.Plus || token.Type == TokenType.Minus)
             {
-                var binOpType = BinOpMap[token.Type];
                 progress();
-                var rhs = Exp1();
-                var ast = new Ast.BinOp(binOpType, lhs, rhs);
-                return ast;
+                var rhs = Exp2();
+                var new_lhs = new Ast.BinOp(BinOpMap[token.Type], lhs, rhs);
+                return Exp1_Rest(new_lhs);
             }
             else
-            {
                 return lhs;
-            }
-            
         }
 
         private Ast.Exp Exp2()
         {
             var lhs = Exp_Value();
-            if (lhs == null)
-                return null;
-            if (pos_ == tokens_.Count - 1)
-                return lhs;
-            progress();
+            if (lhs == null) return null;
+            else return Exp2_Rest(lhs);
+        }
+
+        private Ast.Exp Exp2_Rest(Ast.Exp lhs)
+        {
             var token = currentToken();
+            if (token == null)
+                return lhs;
             if (token.Type == TokenType.Star || token.Type == TokenType.Slash)
             {
-                var binOpType = BinOpMap[token.Type];
                 progress();
-                var rhs = Exp2();
-                var ast = new Ast.BinOp(binOpType, lhs, rhs);
-                return ast;
+                var rhs = Exp_Value();
+                var tmp_lhs = new Ast.BinOp(BinOpMap[token.Type], lhs, rhs);
+                return Exp2_Rest(tmp_lhs);
             }
             else
-            {
                 return lhs;
-            }
         }
 
         private Ast.Exp Exp_Value()
         {
             var token = currentToken();
+            progress();
             if (token.IsNumber)
                 return new Ast.Number(Convert.ToSingle(token.Text));
             else if (token.IsSymbol)
