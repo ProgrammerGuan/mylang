@@ -50,11 +50,6 @@ namespace MyLang
             pos_ = 0;
 
             // TODO: 仮のダミー実装
-            
-            //var lhs = new Ast.Number(1);
-            //var rhs = new Ast.Number(2);
-            //var ast = new Ast.BinOp(Ast.BinOpType.Add, lhs, rhs);
-
             return Exp1();
         }
         
@@ -112,6 +107,8 @@ namespace MyLang
                 return new Ast.Number(Convert.ToSingle(token.Text));
             else if (token.IsSymbol)
                 return new Ast.Symbol(token.Text);
+            else if (token.IsKeyWord)
+                return new Ast.Statement();
             else throw new Exception(string.Format("Invalid input {0}", token.Text));
 
         }

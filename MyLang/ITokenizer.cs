@@ -21,6 +21,9 @@ namespace MyLang
         Star, // "*"
         Slash, // "/"
         Equal, // "="
+
+        //keyword
+        Let,    //"let"
     }
 
     /// <summary>
@@ -46,7 +49,8 @@ namespace MyLang
 
 
         public bool IsSymbol => (Type == TokenType.Symbol);
-        public bool IsBinaryOperator => (Type == TokenType.Plus || Type == TokenType.Minus || Type == TokenType.Star || Type == TokenType.Slash);
+        public bool IsBinaryOperator => (Type == TokenType.Plus || Type == TokenType.Minus || Type == TokenType.Star || Type == TokenType.Slash || Type==TokenType.Equal);
+        public bool IsKeyWord => (Type == TokenType.Let);
     }
 
     public interface ITokenizer

@@ -26,7 +26,7 @@ namespace MyLang
         /// 式(Expression) のベースクラス
         /// </summary>
         public abstract class Exp : Ast { }
-
+        public abstract class Statement : Ast { }
         /// <summary>
         /// ２項演算子の種類
         /// </summary>
@@ -36,6 +36,7 @@ namespace MyLang
             Sub, // -
             Multiply, // *
             Divide, // /
+            Equal,  // =
         }
 
         /// <summary>
@@ -56,6 +57,21 @@ namespace MyLang
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
                 return Tuple.Create(Operator.ToString(), new Ast[] { Lhs, Rhs });
+            }
+        }
+
+        public class AssignStatement : Statement
+        {
+            public readonly Exp Lhs;
+            public readonly Exp Rhs;
+            public AssignStatement(Exp lhs, Exp rhs)
+            {
+                Lhs = lhs;
+                Rhs = rhs;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("Assign", new Ast[] { Lhs,Rhs});
             }
         }
 
