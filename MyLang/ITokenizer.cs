@@ -20,6 +20,7 @@ namespace MyLang
         Minus, // "-"
         Star, // "*"
         Slash, // "/"
+        Equal, // "="
     }
 
     /// <summary>

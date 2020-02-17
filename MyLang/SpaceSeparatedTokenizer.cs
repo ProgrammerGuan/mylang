@@ -72,6 +72,9 @@ namespace MyLang
                             }
                         }
                         break;
+                    case "=":
+                        dummy.Add(new Token(TokenType.Equal, "="));
+                        break;
                     default:
                         // Symbolと数字の時
                         int num = 0;

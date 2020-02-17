@@ -15,7 +15,7 @@ class Program
     {
         bool tokenizeOnly = false; // tokenize だけで終わるかどうか
         bool parseOnly = false; // parse だけで終わるかどうか
-
+        bool isCodingMode = false;  //Coding Mode
         // 引数をparseする
         var rest = new List<string>();
         for (int i = 0; i < args.Length; i++)
@@ -39,10 +39,29 @@ class Program
                 case "--debug":
                     Logger.LogEnabled = true;
                     break;
+                case "-c":
+                case "--coding":
+                Console.WriteLine("----------------------Programming Start-----------------------");
+                    isCodingMode = true;
+                    break;
                 default:
                     rest.Add(arg);
                     break;
             }
+        }
+
+        var codeList = new List<string>();
+        while (isCodingMode)
+        {
+            var codeLine = Console.ReadLine();
+            if (codeLine == "-e" || codeLine == "-execution")
+            {
+                Console.WriteLine("----------------------Programming Answer----------------------");
+                Execute_Program(codeList);
+                exit(0);
+            }
+            else
+                codeList.Add(codeLine);
         }
 
         // 引数がないなら、ヘルプを表示して終わる
@@ -130,6 +149,23 @@ Example:
     {
         waitKey();
         Environment.Exit(resultCode);
+    }
+
+    static void Execute_Program(List<String> codeList)
+    {
+        foreach(string codeLine in codeList)
+        {
+            // 各実行器を用意する
+            ITokenizer tokenizer = new SpaceSeparatedTokenizer();
+            var parser = new Parser();
+            var interpreter = new Interpreter();
+
+            // Tokenize を行う
+            var tokens = tokenizer.Tokenize(string.Join(" ", codeLine.ToArray()));
+            Console.WriteLine(string.Join(" ", tokens.Select(t => t.Text).ToArray()));
+
+        }
+
     }
 
 }
