@@ -7,6 +7,9 @@ namespace MyLang
 {
     public class Interpreter
     {
+
+        public Dictionary<string, float> UserVariableList = new Dictionary<string, float>{};
+
         public Interpreter()
         {
         }
@@ -16,6 +19,22 @@ namespace MyLang
             // TODO: 仮のダミー実装
             if (ast is Ast.Exp exp)
                 return Answer(exp);
+            else if(ast is Ast.AssignStatement assign_statement)
+            {
+                UserVariableList.Add(assign_statement.Lhs.Value, Run(assign_statement.Rhs));
+                return 0;
+            }
+            else if (ast is Ast.PrintStatement print_statement)
+            {
+                var parameter = print_statement.Parameter;
+                if(parameter is Ast.Symbol symbol_parameter)
+                {
+                    if (UserVariableList.ContainsKey(symbol_parameter.Value)) Console.WriteLine(UserVariableList[symbol_parameter.Value]);
+                    else throw new Exception(string.Format("Undefinded variable {0}",symbol_parameter.Value));
+                }
+                else Console.WriteLine(Run(ast));
+                return 0;
+            }
             else
                 return 0;
         }
@@ -47,5 +66,6 @@ namespace MyLang
             else return 0;
         }
 
+        
     }
 }

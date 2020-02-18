@@ -153,17 +153,18 @@ Example:
 
     static void Execute_Program(List<String> codeList)
     {
-        foreach(string codeLine in codeList)
+        // 各実行器を用意する
+        ITokenizer tokenizer = new SpaceSeparatedTokenizer();
+        var parser = new Parser();
+        var interpreter = new Interpreter();
+        foreach (string codeLine in codeList)
         {
-            // 各実行器を用意する
-            ITokenizer tokenizer = new SpaceSeparatedTokenizer();
-            var parser = new Parser();
-            var interpreter = new Interpreter();
-
             // Tokenize を行う
-            var tokens = tokenizer.Tokenize(string.Join(" ", codeLine.ToArray()));
+            var tokens = tokenizer.Tokenize(string.Join(" ", codeLine));
             Console.WriteLine(string.Join(" ", tokens.Select(t => t.Text).ToArray()));
-
+            var ast = parser.Parse(tokens);
+            Console.WriteLine(new MyLang.Ast.AstDisplayer().BuildString(ast, false));
+            interpreter.Run(ast);
         }
 
     }

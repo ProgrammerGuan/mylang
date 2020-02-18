@@ -17,8 +17,16 @@ namespace MyLang
             {TokenType.Minus, Ast.BinOpType.Sub },
             {TokenType.Star, Ast.BinOpType.Multiply },
             {TokenType.Slash, Ast.BinOpType.Divide },
+            {TokenType.Equal,Ast.BinOpType.Equal },
+
         };
 
+        public static Dictionary<TokenType, Ast.KeywordType> KeywordMap = new Dictionary<TokenType, Ast.KeywordType>
+        {
+            {TokenType.Let,Ast.KeywordType.Let },
+            {TokenType.Print,Ast.KeywordType.Print},
+            {TokenType.End,Ast.KeywordType.End },
+        };
         public Parser()
         {
 
@@ -50,9 +58,91 @@ namespace MyLang
             pos_ = 0;
 
             // TODO: 仮のダミー実装
-            return Exp1();
+            return Program();
         }
         
+        private Ast.Ast Program()
+        {
+            return Block();
+        }
+
+        private Ast.Ast Block()
+        {
+            var statement = Statement();
+            if (statement == null) return null;
+            else return Block_Rest(statement);
+        }
+
+        private Ast.Ast Block_Rest(Ast.Statement statement)
+        {
+            var next_block = Block();
+            if (next_block == null) return statement;
+            else return next_block;
+        }
+
+        private Ast.Statement Statement()
+        {
+            var token = currentToken();
+            if (token == null) return null;
+            if (token.IsKeyWord)
+            {
+                progress();
+                switch (token.Type)
+                {
+                    case TokenType.Let:
+                        return AssignStatement();
+                    case TokenType.Print:
+                        return PrintStatement();
+                    default:
+                        throw new Exception("Unknowed Keyword");
+                }
+            }
+            else throw new Exception("Error Statement");
+        }
+
+        private Ast.AssignStatement AssignStatement()
+        {
+            var lhs = Exp_Value();
+            if (lhs is Ast.Symbol lhs_sym)
+            {
+                var token = currentToken();
+                if (token.Type != TokenType.Equal) throw new Exception(string.Format("Let keyword need '=' to assign value to {0}", lhs_sym.Value));
+                progress();
+                var rhs = Exp1();
+                if (rhs == null) throw new Exception(string.Format("Let keyword need right hand side value while assigning to {0}", lhs_sym.Value));
+                else if (rhs is Ast.Exp exp)
+                {
+                    var end_sign = Statement_Keyword();
+                    if (end_sign is Ast.Keyword keyword)
+                    {
+                        if (keyword.Type == Ast.KeywordType.End) return new Ast.AssignStatement(lhs_sym, rhs);
+                        else throw new Exception("need ';' after statement");
+                    }
+                    else throw new Exception("need ';' after statement");
+                }
+                else throw new Exception(string.Format("The right hand side value need to be exception while assigning"));
+            }
+            else throw new Exception("Error Left Hand Side Symbol while assigning");
+        }
+
+        private Ast.PrintStatement PrintStatement()
+        {
+            var parameter = Exp1();
+            if (parameter == null) throw new Exception("print need parameter after it ");
+            else
+            {
+                var end_sign = Statement_Keyword();
+                if (end_sign is Ast.Keyword keyword)
+                {
+                    if (keyword.Type == Ast.KeywordType.End) return new Ast.PrintStatement(parameter);
+                    else throw new Exception("need ';' after statement");
+                }
+                else throw new Exception("need ';' after statement");
+            }
+        }
+
+
+
         private Ast.Exp Exp1()
         {
             var lhs = Exp2();
@@ -107,11 +197,19 @@ namespace MyLang
                 return new Ast.Number(Convert.ToSingle(token.Text));
             else if (token.IsSymbol)
                 return new Ast.Symbol(token.Text);
-            else if (token.IsKeyWord)
-                return new Ast.Statement();
             else throw new Exception(string.Format("Invalid input {0}", token.Text));
 
         }
+
+        private Ast.Statement Statement_Keyword()
+        {
+            var token = currentToken();
+            progress();
+            if (token.IsKeyWord)
+                return new Ast.Keyword(token.Text, token.Type);
+            else throw new Exception(string.Format("Unknowed sign in statement"));
+        }
+
 
     }
 }

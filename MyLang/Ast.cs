@@ -36,7 +36,14 @@ namespace MyLang
             Sub, // -
             Multiply, // *
             Divide, // /
-            Equal,  // =
+            Equal, // = 
+        }
+
+        public enum KeywordType
+        {
+            Let,    // let or Let
+            End,    // ;
+            Print,  // print
         }
 
         /// <summary>
@@ -62,9 +69,9 @@ namespace MyLang
 
         public class AssignStatement : Statement
         {
-            public readonly Exp Lhs;
+            public readonly Symbol Lhs;
             public readonly Exp Rhs;
-            public AssignStatement(Exp lhs, Exp rhs)
+            public AssignStatement(Symbol lhs, Exp rhs)
             {
                 Lhs = lhs;
                 Rhs = rhs;
@@ -72,6 +79,19 @@ namespace MyLang
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
                 return Tuple.Create("Assign", new Ast[] { Lhs,Rhs});
+            }
+        }
+
+        public class PrintStatement : Statement
+        {
+            public readonly Exp Parameter;
+            public PrintStatement(Exp parameter)
+            {
+                Parameter = parameter;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("Print", new Ast[] { Parameter });
             }
         }
 
@@ -103,6 +123,21 @@ namespace MyLang
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
                 return Tuple.Create(Value, (Ast[])null);
+            }
+        }
+
+        public class Keyword : Statement
+        {
+            public readonly string Value;
+            public readonly KeywordType Type;
+            public Keyword(string value, TokenType type)
+            {
+                Value = value;
+                Type = Parser.KeywordMap[type];
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                throw new NotImplementedException();
             }
         }
 
