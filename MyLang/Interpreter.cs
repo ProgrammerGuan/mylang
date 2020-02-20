@@ -13,7 +13,7 @@ namespace MyLang
 
     static class UserDictionary
     {
-        static public Dictionary<string, float> Variable = new Dictionary<string, float > { };
+        static public Dictionary<string, float> Variable = new Dictionary<string, float> { };
         static public Dictionary<string, Block> Function = new Dictionary<string, Block> { };
     }
 

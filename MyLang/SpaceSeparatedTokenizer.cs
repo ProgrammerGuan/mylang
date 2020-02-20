@@ -108,7 +108,7 @@ namespace MyLang
                         {
                             //もし今の字はSymbolれば　どんどん次の言葉をチェックします
                             if (now_character[i] == " ") break;
-                            while (i < now_character.Count && Char.IsLetter(now_character[i].ToCharArray()[0]))
+                            while (i < now_character.Count )
                             {
                                 single_word.Add(now_character[i++]);
                                 if (i == now_character.Count || now_character[i]==" ")

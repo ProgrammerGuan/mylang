@@ -31,15 +31,25 @@ namespace MyLang
         {
             public readonly List<Ast> StatementList;
             public readonly string FunctionName;
+            public Dictionary<string, float> Variables;
+            public Dictionary<string, Block> Functions;
             public Block()
             {
                 StatementList = new List<Ast>();
                 FunctionName = "main";
+                CreatDictionarys();
             }
             public Block(string function_name)
             {
                 StatementList = new List<Ast>();
                 FunctionName = function_name;
+                CreatDictionarys();
+            }
+
+            public void CreatDictionarys()
+            {
+                Variables = new Dictionary<string, float>();
+                Functions = new Dictionary<string, Block>();
             }
 
             public void AddStatement(Statement statement)
