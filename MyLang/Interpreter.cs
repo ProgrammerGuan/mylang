@@ -11,11 +11,22 @@ namespace MyLang
         public const int NotFloatAnswer = 981296739;
     }
 
-    static class UserDictionary
+    static class VariablesOwners
     {
-        static public Dictionary<string, float> Variable = new Dictionary<string, float> { };
-        static public Dictionary<string, Block> Function = new Dictionary<string, Block> { };
+        static public Dictionary<string,UserDictionary> Dic = new Dictionary<string,UserDictionary>();
+        public class UserDictionary
+        {
+            public Dictionary<string, float> Variable ;
+            public Dictionary<string, Block> Function ;
+            public UserDictionary()
+            {
+                Variable = new Dictionary<string, float> { };
+                Function = new Dictionary<string, Block> { };
+            }
+        }
     }
+
+    
 
     public class Interpreter
     {
@@ -31,41 +42,42 @@ namespace MyLang
                 return Answer(exp);
             else if(ast is Ast.Block block)
             {
+                
                 foreach (Statement statement in block.StatementList)
                 {
                     if (statement is AssignStatement assign_statement)
                     {
-                        if (!UserDictionary.Variable.ContainsKey(assign_statement.Lhs.Value)) throw new Exception("Unknowed variable");
-                        UserDictionary.Variable[assign_statement.Lhs.Value] = Run(assign_statement.Rhs);
+                        if (!VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(assign_statement.Lhs.Value)) throw new Exception("Unknowed variable");
+                        VariablesOwners.Dic[block.FunctionName].Variable[assign_statement.Lhs.Value] = Run(assign_statement.Rhs);
                     }
                     else if (statement is PrintStatement print_statement)
                     {
                         var parameter = print_statement.Parameter;
                         if (parameter is Symbol symbol_parameter)
                         {
-                            if (UserDictionary.Variable.ContainsKey(symbol_parameter.Value)) Console.WriteLine(UserDictionary.Variable[symbol_parameter.Value]);
+                            if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(symbol_parameter.Value)) Console.WriteLine(VariablesOwners.Dic[block.FunctionName].Variable[symbol_parameter.Value]);
                             else throw new Exception(string.Format("Undefinded variable {0}", symbol_parameter.Value));
                         }
                         else Console.WriteLine(Run(print_statement.Parameter));
                     }
                     else if (statement is FunctionStatement function_statement)
-                        {
-                        if (UserDictionary.Function.ContainsKey(function_statement.FunctionName.Value)) throw new Exception("Existed function name");
-                        UserDictionary.Function.Add(function_statement.FunctionName.Value, function_statement.Functionblock);
+                    {
+                        if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(function_statement.FunctionName.Value)) throw new Exception("Existed function name");
+                        VariablesOwners.Dic[block.FunctionName].Function.Add(function_statement.FunctionName.Value, function_statement.Functionblock);
                     }
                     else if (statement is DoFunctionStatement do_function)
-                        {
-                            if (UserDictionary.Function.ContainsKey(do_function.FunctionName.Value))
-                                Run(UserDictionary.Function[do_function.FunctionName.Value]);
-                        }
+                    {
+                        if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(do_function.FunctionName.Value))
+                            Run(VariablesOwners.Dic[block.FunctionName].Function[do_function.FunctionName.Value]);
+                    }
                     else if(statement is ReturnStatement return_statement)
                     {
                         return Run(return_statement.Return_Value);
                     }
                     else if(statement is EqualStatement equal_statement)
                     {
-                        if (!UserDictionary.Variable.ContainsKey(equal_statement.Lhs.Value)) throw new Exception("Unknowed variable");
-                        UserDictionary.Variable[equal_statement.Lhs.Value] = Run(equal_statement.Rhs);
+                        if (!VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(equal_statement.Lhs.Value)) throw new Exception("Unknowed variable");
+                        VariablesOwners.Dic[block.FunctionName].Variable[equal_statement.Lhs.Value] = Run(equal_statement.Rhs);
                     }
                     else throw new Exception("Unknowed statement");
                 }
@@ -100,13 +112,18 @@ namespace MyLang
                 return ast_num.Value;
             else if(exp is Ast.Symbol ast_symbol)
             {
-                if (UserDictionary.Variable.ContainsKey(ast_symbol.Value)) return UserDictionary.Variable[ast_symbol.Value];
-                else if (UserDictionary.Function.ContainsKey(ast_symbol.Value)) return Run(UserDictionary.Function[ast_symbol.Value]);
+                if (VariablesOwners.Dic.ContainsKey(ast_symbol.Owner))
+                {
+                    if (VariablesOwners.Dic[ast_symbol.Owner].Function.ContainsKey(ast_symbol.Value))
+                        return Run(VariablesOwners.Dic[ast_symbol.Owner].Function[ast_symbol.Value]);
+                    else if (VariablesOwners.Dic[ast_symbol.Owner].Variable.ContainsKey(ast_symbol.Value))
+                        return VariablesOwners.Dic[ast_symbol.Owner].Variable[ast_symbol.Value];
+                    else throw new Exception("Unknowned Variable");
+                }
                 else throw new Exception("Unknowed variable or function");
             }
             else return 0;
         }
 
-        
     }
 }

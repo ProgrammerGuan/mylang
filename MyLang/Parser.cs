@@ -66,7 +66,12 @@ namespace MyLang
 
         private Ast.Block Block(Ast.Block block)
         {
-            var statement = Statement();
+            if (!VariablesOwners.Dic.ContainsKey(block.FunctionName))
+            {
+                var newDic = new VariablesOwners.UserDictionary();
+                VariablesOwners.Dic.Add(block.FunctionName, newDic);
+            }
+            var statement = Statement(block);
             if (statement == null) return block;
             else
             {
@@ -81,7 +86,7 @@ namespace MyLang
             return block;
         }
 
-        private Ast.Statement Statement()
+        private Ast.Statement Statement(Ast.Block block)
         {
             var token = currentToken();
             if (token == null) return null;
@@ -91,16 +96,16 @@ namespace MyLang
                 switch (token.Type)
                 {
                     case TokenType.Let:
-                        return AssignStatement();
+                        return AssignStatement(block);
                     case TokenType.Print:
-                        return PrintStatement();
+                        return PrintStatement(block);
                     case TokenType.Function:
-                        return FunctionStatement();
+                        return FunctionStatement(block);
                     case TokenType.RightBlock:
                         pos_ -= 1;
                         return null;
                     case TokenType.Return:
-                        return ReturnStatement();
+                        return ReturnStatement(block);
                     case TokenType.End:
                         return null;
                     default:
@@ -110,16 +115,16 @@ namespace MyLang
             else if (token.IsSymbol)
             {
                 progress();
-                if (UserDictionary.Function.ContainsKey(token.Text)) return new Ast.DoFunctionStatement(token.Text);
-                else if (UserDictionary.Variable.ContainsKey(token.Text))
+                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(token.Text)) return new Ast.DoFunctionStatement(token.Text, block.FunctionName);
+                else if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(token.Text))
                 {
                     var operater = currentToken();
                     progress();
                     if (operater == null) throw new Exception("None active");
                     else if (operater.Type == TokenType.Equal)
                     {
-                        var lhs = new Ast.Symbol(token.Text);
-                        return EqualStatement(lhs);
+                        var lhs = new Ast.Symbol(token.Text,block.FunctionName);
+                        return EqualStatement(lhs,block);
                     }
                     else throw new Exception("Knowed active");
                 }
@@ -128,22 +133,22 @@ namespace MyLang
             else throw new Exception("Error Statement");
         }
 
-        private Ast.AssignStatement AssignStatement()
+        private Ast.AssignStatement AssignStatement(Ast.Block block)
         {
-            var lhs = Exp_Value();
+            var lhs = Exp_Value(block);
             if (lhs is Ast.Symbol lhs_sym)
             {
                 var token = currentToken();
                 if (token.Type != TokenType.Equal) throw new Exception(string.Format("Let keyword need '=' to assign value to {0}", lhs_sym.Value));
                 progress();
-                var rhs = Exp1();
+                var rhs = Exp1(block);
                 if (rhs == null) throw new Exception(string.Format("Let keyword need right hand side value while assigning to {0}", lhs_sym.Value));
                 else if (rhs is Ast.Exp exp)
                 {
                     var end_sign = Statement_Keyword();
                     if (end_sign .Type == Ast.KeywordType.End)
                     {
-                        UserDictionary.Variable.Add(lhs_sym.Value, 0);
+                        VariablesOwners.Dic[block.FunctionName].Variable.Add(lhs_sym.Value, 0);
                         return new Ast.AssignStatement(lhs_sym, rhs);
                     }
                     else throw new Exception("need ';' after statement");
@@ -153,17 +158,17 @@ namespace MyLang
             else throw new Exception("Error Left Hand Side Symbol while assigning");
         }
 
-        private Ast.EqualStatement EqualStatement(Ast.Symbol lhs)
+        private Ast.EqualStatement EqualStatement(Ast.Symbol lhs,Ast.Block block)
         {
             Ast.Ast rhs;
-            var rhs_exp = Exp1();
+            var rhs_exp = Exp1(block);
             if(rhs_exp !=null)
             {
                 rhs = rhs_exp;
             }
             else
             {
-                var rhs_statement = Statement();
+                var rhs_statement = Statement(block);
                 if (rhs_statement == null) throw new Exception("Equal statement havn't got right hand side");
                 else rhs = rhs_exp;
             }
@@ -173,9 +178,9 @@ namespace MyLang
             else throw new Exception("need ';' after statement");
         }
 
-        private Ast.PrintStatement PrintStatement()
+        private Ast.PrintStatement PrintStatement(Ast.Block block)
         {
-            var parameter = Exp1();
+            var parameter = Exp1(block);
             if (parameter == null) throw new Exception("print need parameter after it ");
             else
             {
@@ -186,9 +191,9 @@ namespace MyLang
             }
         }
 
-        private Ast.FunctionStatement FunctionStatement()
+        private Ast.FunctionStatement FunctionStatement(Ast.Block block)
         {
-            var function_name = Exp1();
+            var function_name = Exp1(block);
             if (function_name is Ast.Symbol name)
             {
                 var left_block = Statement_Keyword();
@@ -202,21 +207,21 @@ namespace MyLang
             else throw new Exception("Invalid function name");
         }
 
-        private Ast.ReturnStatement ReturnStatement()
+        private Ast.ReturnStatement ReturnStatement(Ast.Block block)
         {
-            var exp = Exp1();
+            var exp = Exp1(block);
             if (exp == null) return null;
             return new Ast.ReturnStatement(exp);
         }
 
-        private Ast.Exp Exp1()
+        private Ast.Exp Exp1(Ast.Block block)
         {
-            var lhs = Exp2();
+            var lhs = Exp2(block);
             if (lhs == null) return null;
-            else return Exp1_Rest(lhs);
+            else return Exp1_Rest(lhs,block);
         }
 
-        private Ast.Exp Exp1_Rest(Ast.Exp lhs)
+        private Ast.Exp Exp1_Rest(Ast.Exp lhs,Ast.Block block)
         {
             var token = currentToken();
             if (token == null)
@@ -224,22 +229,22 @@ namespace MyLang
             if (token.Type == TokenType.Plus || token.Type == TokenType.Minus)
             {
                 progress();
-                var rhs = Exp2();
+                var rhs = Exp2(block);
                 var new_lhs = new Ast.BinOp(BinOpMap[token.Type], lhs, rhs);
-                return Exp1_Rest(new_lhs);
+                return Exp1_Rest(new_lhs,block);
             }
             else
                 return lhs;
         }
 
-        private Ast.Exp Exp2()
+        private Ast.Exp Exp2(Ast.Block block)
         {
-            var lhs = Exp_Value();
+            var lhs = Exp_Value(block);
             if (lhs == null) return null;
-            else return Exp2_Rest(lhs);
+            else return Exp2_Rest(lhs,block);
         }
 
-        private Ast.Exp Exp2_Rest(Ast.Exp lhs)
+        private Ast.Exp Exp2_Rest(Ast.Exp lhs,Ast.Block block)
         {
             var token = currentToken();
             if (token == null)
@@ -247,22 +252,22 @@ namespace MyLang
             if (token.Type == TokenType.Star || token.Type == TokenType.Slash)
             {
                 progress();
-                var rhs = Exp_Value();
+                var rhs = Exp_Value(block);
                 var tmp_lhs = new Ast.BinOp(BinOpMap[token.Type], lhs, rhs);
-                return Exp2_Rest(tmp_lhs);
+                return Exp2_Rest(tmp_lhs,block);
             }
             else
                 return lhs;
         }
 
-        private Ast.Exp Exp_Value()
+        private Ast.Exp Exp_Value(Ast.Block block)
         {
             var token = currentToken();
             progress();
             if (token.IsNumber)
                 return new Ast.Number(Convert.ToSingle(token.Text));
             else if (token.IsSymbol)
-                return new Ast.Symbol(token.Text);
+                return new Ast.Symbol(token.Text,block.FunctionName);
             else throw new Exception(string.Format("Invalid input {0}", token.Text));
 
         }

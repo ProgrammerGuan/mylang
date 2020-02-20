@@ -174,9 +174,9 @@ namespace MyLang
         public class DoFunctionStatement : Statement
         {
             public readonly Symbol FunctionName;
-            public DoFunctionStatement(string name)
+            public DoFunctionStatement(string name,string functionOwner)
             {
-                FunctionName = new Symbol(name);
+                FunctionName = new Symbol(name,functionOwner);
             }
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
@@ -217,9 +217,11 @@ namespace MyLang
         public class Symbol : Exp
         {
             public readonly string Value;
-            public Symbol(string value)
+            public readonly string Owner;
+            public Symbol(string value,string owner)
             {
                 Value = value;
+                Owner = owner;
             }
 
             public override Tuple<string, Ast[]> GetDisplayInfo()
