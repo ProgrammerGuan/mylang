@@ -13,7 +13,7 @@ namespace MyLang
 
     static class UserDictionary
     {
-        static public Dictionary<string, float> Variable = new Dictionary<string, float> { };
+        static public Dictionary<string, float> Variable = new Dictionary<string, float > { };
         static public Dictionary<string, Block> Function = new Dictionary<string, Block> { };
     }
 
@@ -35,8 +35,8 @@ namespace MyLang
                 {
                     if (statement is AssignStatement assign_statement)
                     {
-                        if (UserDictionary.Variable.ContainsKey(assign_statement.Lhs.Value)) throw new Exception("Existed variable");
-                        UserDictionary.Variable.Add(assign_statement.Lhs.Value, Run(assign_statement.Rhs));
+                        if (!UserDictionary.Variable.ContainsKey(assign_statement.Lhs.Value)) throw new Exception("Unknowed variable");
+                        UserDictionary.Variable[assign_statement.Lhs.Value] = Run(assign_statement.Rhs);
                     }
                     else if (statement is PrintStatement print_statement)
                     {
@@ -61,6 +61,11 @@ namespace MyLang
                     else if(statement is ReturnStatement return_statement)
                     {
                         return Run(return_statement.Return_Value);
+                    }
+                    else if(statement is EqualStatement equal_statement)
+                    {
+                        if (!UserDictionary.Variable.ContainsKey(equal_statement.Lhs.Value)) throw new Exception("Unknowed variable");
+                        UserDictionary.Variable[equal_statement.Lhs.Value] = Run(equal_statement.Rhs);
                     }
                     else throw new Exception("Unknowed statement");
                 }

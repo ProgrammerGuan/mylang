@@ -60,12 +60,12 @@ namespace MyLang
             Sub, // -
             Multiply, // *
             Divide, // /
-            Equal, // = 
         }
 
         public enum KeywordType
         {
             Let,    // let or Let
+            Equal,  // =
             End,    // ;
             Print,  // print
             Function,   //function
@@ -107,6 +107,29 @@ namespace MyLang
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
                 return Tuple.Create("Assign", new Ast[] { Lhs,Rhs});
+            }
+        }
+
+        public class EqualStatement : Statement
+        {
+            public readonly Symbol Lhs;
+            public readonly Ast Rhs;
+            public EqualStatement(Symbol lhs,Ast rhs)
+            {
+                Lhs = lhs;
+                Rhs = rhs;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                if (Rhs is DoFunctionStatement function)
+                {
+                    return Tuple.Create("Equal", new Ast[] { Lhs, function.FunctionName });
+                }
+                else if (Rhs is Exp exp)
+                {
+                    return Tuple.Create("Equal", new Ast[] { Lhs, exp });
+                }
+                else throw new Exception("Unknowed equal right hand side statement");
             }
         }
 

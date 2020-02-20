@@ -17,12 +17,12 @@ namespace MyLang
             {TokenType.Minus, Ast.BinOpType.Sub },
             {TokenType.Star, Ast.BinOpType.Multiply },
             {TokenType.Slash, Ast.BinOpType.Divide },
-            {TokenType.Equal,Ast.BinOpType.Equal },
         };
 
         public static Dictionary<TokenType, Ast.KeywordType> KeywordMap = new Dictionary<TokenType, Ast.KeywordType>
         {
             {TokenType.Let,Ast.KeywordType.Let },
+            {TokenType.Equal,Ast.KeywordType.Equal },
             {TokenType.Print,Ast.KeywordType.Print},
             {TokenType.End,Ast.KeywordType.End },
             {TokenType.RightBlock,Ast.KeywordType.Rightblock },
@@ -110,7 +110,20 @@ namespace MyLang
             else if (token.IsSymbol)
             {
                 progress();
-                return new Ast.DoFunctionStatement(token.Text);
+                if (UserDictionary.Function.ContainsKey(token.Text)) return new Ast.DoFunctionStatement(token.Text);
+                else if (UserDictionary.Variable.ContainsKey(token.Text))
+                {
+                    var operater = currentToken();
+                    progress();
+                    if (operater == null) throw new Exception("None active");
+                    else if (operater.Type == TokenType.Equal)
+                    {
+                        var lhs = new Ast.Symbol(token.Text);
+                        return EqualStatement(lhs);
+                    }
+                    else throw new Exception("Knowed active");
+                }
+                else throw new Exception("Unknowed function");
             }
             else throw new Exception("Error Statement");
         }
@@ -129,12 +142,35 @@ namespace MyLang
                 {
                     var end_sign = Statement_Keyword();
                     if (end_sign .Type == Ast.KeywordType.End)
+                    {
+                        UserDictionary.Variable.Add(lhs_sym.Value, 0);
                         return new Ast.AssignStatement(lhs_sym, rhs);
+                    }
                     else throw new Exception("need ';' after statement");
                 }
                 else throw new Exception(string.Format("The right hand side value need to be exception while assigning"));
             }
             else throw new Exception("Error Left Hand Side Symbol while assigning");
+        }
+
+        private Ast.EqualStatement EqualStatement(Ast.Symbol lhs)
+        {
+            Ast.Ast rhs;
+            var rhs_exp = Exp1();
+            if(rhs_exp !=null)
+            {
+                rhs = rhs_exp;
+            }
+            else
+            {
+                var rhs_statement = Statement();
+                if (rhs_statement == null) throw new Exception("Equal statement havn't got right hand side");
+                else rhs = rhs_exp;
+            }
+            var end_sign = Statement_Keyword();
+            if (end_sign.Type == Ast.KeywordType.End)
+                return new Ast.EqualStatement(lhs, rhs);
+            else throw new Exception("need ';' after statement");
         }
 
         private Ast.PrintStatement PrintStatement()
