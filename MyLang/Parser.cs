@@ -61,6 +61,15 @@ namespace MyLang
 
             // TODO: 仮のダミー実装
             var main_block = new Ast.Block();
+            return Exp1(main_block);
+        }
+
+        public Ast.Ast ProgramingParse(IList<Token> tokens)
+        {
+            tokens_ = tokens;
+            tokens_.RemoveAt(tokens_.Count - 1);
+            pos_ = 0;
+            var main_block = new Ast.Block();
             return Block(main_block);
         }
 
