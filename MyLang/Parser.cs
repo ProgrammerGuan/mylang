@@ -64,6 +64,11 @@ namespace MyLang
             return Block(main_block);
         }
 
+        /// <summary>
+        /// Blockを作る
+        /// </summary>
+        /// <param name="block"></param>
+        /// <returns></returns>
         private Ast.Block Block(Ast.Block block)
         {
             if (!VariablesOwners.Dic.ContainsKey(block.FunctionName))
@@ -85,7 +90,11 @@ namespace MyLang
             var next_block = Block(block);
             return block;
         }
-
+        /// <summary>
+        /// どのStatementを確認すると作る
+        /// </summary>
+        /// <param name="block"></param>
+        /// <returns></returns>
         private Ast.Statement Statement(Ast.Block block)
         {
             var token = currentToken();

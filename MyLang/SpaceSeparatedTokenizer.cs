@@ -21,6 +21,7 @@ namespace MyLang
         public IList<Token> Tokenize(string src)
         {
             var now_character = new List<string>();
+            //単語の確認時is_Single_Wordを使う
             bool is_Single_Word = false;
             foreach (char s in src)
             {
@@ -28,7 +29,7 @@ namespace MyLang
                 {
                     is_Single_Word = true;
                     continue;
-                }
+                }// これら記号は全部単語の終了
                 else if (s == '=' || s=='+' || s=='-' || s=='*' || s=='/' || s=='{') is_Single_Word = true;
                 if (is_Single_Word)
                 {
@@ -119,6 +120,7 @@ namespace MyLang
                             {
                                 switch (string.Join("", single_word.ToArray()))
                                 {
+                                    //キーワードを確認する
                                     case "let":
                                     case "Let":
                                         dummy.Add(new Token(TokenType.Let, "Let"));

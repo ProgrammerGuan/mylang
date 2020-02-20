@@ -27,29 +27,25 @@ namespace MyLang
         /// </summary>
         public abstract class Exp : Ast { }
         public abstract class Statement : Ast { }
+        /// <summary>
+        /// Blockは大きいクラス、色々Statementがある
+        /// </summary>
         public class Block : Ast
         {
             public readonly List<Ast> StatementList;
             public readonly string FunctionName;
-            public Dictionary<string, float> Variables;
-            public Dictionary<string, Block> Functions;
+            /// <summary>
+            /// Blockを作ると、名前を確認する
+            /// </summary>
             public Block()
             {
                 StatementList = new List<Ast>();
                 FunctionName = "main";
-                CreatDictionarys();
             }
             public Block(string function_name)
             {
                 StatementList = new List<Ast>();
                 FunctionName = function_name;
-                CreatDictionarys();
-            }
-
-            public void CreatDictionarys()
-            {
-                Variables = new Dictionary<string, float>();
-                Functions = new Dictionary<string, Block>();
             }
 
             public void AddStatement(Statement statement)
@@ -71,7 +67,9 @@ namespace MyLang
             Multiply, // *
             Divide, // /
         }
-
+        /// <summary>
+        /// キーワードの種類
+        /// </summary>
         public enum KeywordType
         {
             Let,    // let or Let
@@ -104,7 +102,10 @@ namespace MyLang
                 return Tuple.Create(Operator.ToString(), new Ast[] { Lhs, Rhs });
             }
         }
-
+        
+        /// <summary>
+        /// Assign Statementを表すAST
+        /// </summary>
         public class AssignStatement : Statement
         {
             public readonly Symbol Lhs;
@@ -119,7 +120,9 @@ namespace MyLang
                 return Tuple.Create("Assign", new Ast[] { Lhs,Rhs});
             }
         }
-
+        /// <summary>
+        /// Equal Statementを表すAST
+        /// </summary>
         public class EqualStatement : Statement
         {
             public readonly Symbol Lhs;
@@ -142,7 +145,9 @@ namespace MyLang
                 else throw new Exception("Unknowed equal right hand side statement");
             }
         }
-
+        /// <summary>
+        /// Print Statementを表すAST
+        /// </summary>
         public class PrintStatement : Statement
         {
             public readonly Exp Parameter;
@@ -155,7 +160,9 @@ namespace MyLang
                 return Tuple.Create("Print", new Ast[] { Parameter });
             }
         }
-
+        /// <summary>
+        /// Function Statementを表すAST
+        /// </summary>
         public class FunctionStatement : Statement
         {
             public readonly Symbol FunctionName;
@@ -170,7 +177,9 @@ namespace MyLang
                 return Tuple.Create("Function", new Ast[] { FunctionName, Functionblock });
             }
         }
-
+        /// <summary>
+        /// DoFunction Statementを表すAST
+        /// </summary>
         public class DoFunctionStatement : Statement
         {
             public readonly Symbol FunctionName;
@@ -183,7 +192,9 @@ namespace MyLang
                 return Tuple.Create("Do", new Ast[] { FunctionName });
             }
         }
-
+        /// <summary>
+        /// Return Statementを表すAST
+        /// </summary>
         public class ReturnStatement : Statement
         {
             public readonly Ast Return_Value;
@@ -213,7 +224,9 @@ namespace MyLang
                 return Tuple.Create(Value.ToString(), (Ast[])null);
             }
         }
-
+        /// <summary>
+        /// Symbolを表すAST
+        /// </summary>
         public class Symbol : Exp
         {
             public readonly string Value;
@@ -229,7 +242,9 @@ namespace MyLang
                 return Tuple.Create(Value, (Ast[])null);
             }
         }
-
+        /// <summary>
+        /// キーワードを表すAST
+        /// </summary>
         public class Keyword : Statement
         {
             public readonly string Value;

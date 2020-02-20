@@ -5,14 +5,12 @@ using MyLang.Ast;
 
 namespace MyLang
 {
-    static class InterpreterPassword
-    {
-        public const int MainFunction = 985093846;
-        public const int NotFloatAnswer = 981296739;
-    }
-
+    /// <summary>
+    /// 変数と方法の名前を保存する
+    /// </summary>
     static class VariablesOwners
     {
+        //全ての方法は変数と自分のBlockを持つ
         static public Dictionary<string,UserDictionary> Dic = new Dictionary<string,UserDictionary>();
         public class UserDictionary
         {
@@ -82,7 +80,7 @@ namespace MyLang
                     }
                     else throw new Exception("Unknowed statement");
                 }
-                return InterpreterPassword.MainFunction;
+                return 0;
 
             }
             else 
