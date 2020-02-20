@@ -141,6 +141,13 @@ namespace MyLang
                 var token = currentToken();
                 if (token.Type != TokenType.Equal) throw new Exception(string.Format("Let keyword need '=' to assign value to {0}", lhs_sym.Value));
                 progress();
+                var minus_symbol = currentToken();
+                var IsMinus = false;
+                if (minus_symbol.Type == TokenType.Minus)
+                {
+                    progress();
+                    IsMinus = true;
+                }
                 var rhs = Exp1(block);
                 if (rhs == null) throw new Exception(string.Format("Let keyword need right hand side value while assigning to {0}", lhs_sym.Value));
                 else if (rhs is Ast.Exp exp)
@@ -150,6 +157,7 @@ namespace MyLang
                     {
                         if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(lhs_sym.Value)) throw new Exception("Existed Variable");
                         VariablesOwners.Dic[block.FunctionName].Variable.Add(lhs_sym.Value, 0);
+                        if(IsMinus) return new Ast.AssignStatement(lhs_sym, new Ast.BinOp(Ast.BinOpType.Sub ,new Ast.Number(0),rhs));
                         return new Ast.AssignStatement(lhs_sym, rhs);
                     }
                     else throw new Exception("need ';' after statement");
