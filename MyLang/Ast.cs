@@ -27,6 +27,30 @@ namespace MyLang
         /// </summary>
         public abstract class Exp : Ast { }
         public abstract class Statement : Ast { }
+        public class Block : Ast
+        {
+            public readonly List<Ast> StatementList;
+            public readonly string FunctionName;
+            public Block()
+            {
+                StatementList = new List<Ast>();
+                FunctionName = "main";
+            }
+            public Block(string function_name)
+            {
+                StatementList = new List<Ast>();
+                FunctionName = function_name;
+            }
+
+            public void AddStatement(Statement statement)
+            {
+                StatementList.Add(statement);
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("Block", StatementList.ToArray());
+            }
+        }
         /// <summary>
         /// ２項演算子の種類
         /// </summary>
@@ -44,6 +68,10 @@ namespace MyLang
             Let,    // let or Let
             End,    // ;
             Print,  // print
+            Function,   //function
+            Return, //  return
+            Leftblock,  //  {
+            Rightblock, //  }
         }
 
         /// <summary>
@@ -92,6 +120,47 @@ namespace MyLang
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
                 return Tuple.Create("Print", new Ast[] { Parameter });
+            }
+        }
+
+        public class FunctionStatement : Statement
+        {
+            public readonly Symbol FunctionName;
+            public readonly Block Functionblock;
+            public FunctionStatement(Symbol function_name,Block function_block)
+            {
+                FunctionName = function_name;
+                Functionblock = function_block;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("Function", new Ast[] { FunctionName, Functionblock });
+            }
+        }
+
+        public class DoFunctionStatement : Statement
+        {
+            public readonly Symbol FunctionName;
+            public DoFunctionStatement(string name)
+            {
+                FunctionName = new Symbol(name);
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("Do", new Ast[] { FunctionName });
+            }
+        }
+
+        public class ReturnStatement : Statement
+        {
+            public readonly Ast Return_Value;
+            public ReturnStatement(Ast exp)
+            {
+                Return_Value = exp;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("Return", new Ast[] { Return_Value });
             }
         }
 

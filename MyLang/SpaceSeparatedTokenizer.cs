@@ -29,7 +29,7 @@ namespace MyLang
                     is_Single_Word = true;
                     continue;
                 }
-                else if (s == '=') is_Single_Word = true;
+                else if (s == '=' || s=='+' || s=='-' || s=='*' || s=='/') is_Single_Word = true;
                 if (is_Single_Word)
                 {
                     is_Single_Word = false;
@@ -37,7 +37,7 @@ namespace MyLang
                 }
                 if (s.ToString() == ";") now_character.Add(" ");
                 now_character.Add(s.ToString());
-                if (s.ToString() == "=") now_character.Add(" ");
+                if (s.ToString() == "=" || s.ToString() == "+" || s.ToString() == "-" || s.ToString() == "*" || s.ToString() == "/" ) now_character.Add(" ");
             }
 
             // TODO: 仮のダミー実装
@@ -94,6 +94,12 @@ namespace MyLang
                     case ";":
                         dummy.Add(new Token(TokenType.End, ";"));
                         break;
+                    case "{":
+                        dummy.Add(new Token(TokenType.LeftBlock, "{"));
+                        break;
+                    case "}":
+                        dummy.Add(new Token(TokenType.RightBlock, "}"));
+                        break;
                     default:
                         // Symbolと数字の時
                         int num = 0;
@@ -119,6 +125,12 @@ namespace MyLang
                                         break;
                                     case "print":
                                         dummy.Add(new Token(TokenType.Print, "Print"));
+                                        break;
+                                    case "function":
+                                        dummy.Add(new Token(TokenType.Function, "Function"));
+                                        break;
+                                    case "return":
+                                        dummy.Add(new Token(TokenType.Return, "Return"));
                                         break;
                                     default:
                                         dummy.Add(new Token(TokenType.Symbol, string.Join("", single_word.ToArray())));

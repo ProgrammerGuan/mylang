@@ -25,8 +25,12 @@ namespace MyLang
         //keyword
         Let,    //"let"
         Print,  // "print"
-        // end word
+        Function,   //function
+        Return, // return
+        // keyword symbol
         End,    // ";"
+        LeftBlock,  // "{"
+        RightBlock, // "}"
     }
 
     /// <summary>
@@ -53,7 +57,7 @@ namespace MyLang
 
         public bool IsSymbol => (Type == TokenType.Symbol);
         public bool IsBinaryOperator => (Type == TokenType.Plus || Type == TokenType.Minus || Type == TokenType.Star || Type == TokenType.Slash || Type==TokenType.Equal);
-        public bool IsKeyWord => (Type == TokenType.Let || Type==TokenType.Print || Type==TokenType.End);
+        public bool IsKeyWord => (Type == TokenType.Let || Type==TokenType.Print || Type==TokenType.Function || Type == TokenType.Return || Type==TokenType.End || Type == TokenType.LeftBlock || Type == TokenType.RightBlock);
     }
 
     public interface ITokenizer

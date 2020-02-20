@@ -5,11 +5,21 @@ using MyLang.Ast;
 
 namespace MyLang
 {
+    static class InterpreterPassword
+    {
+        public const int MainFunction = 985093846;
+        public const int NotFloatAnswer = 981296739;
+    }
+
+    static class UserDictionary
+    {
+        static public Dictionary<string, float> Variable = new Dictionary<string, float> { };
+        static public Dictionary<string, Block> Function = new Dictionary<string, Block> { };
+    }
+
     public class Interpreter
     {
-
-        public Dictionary<string, float> UserVariableList = new Dictionary<string, float>{};
-
+        
         public Interpreter()
         {
         }
@@ -19,24 +29,46 @@ namespace MyLang
             // TODO: 仮のダミー実装
             if (ast is Ast.Exp exp)
                 return Answer(exp);
-            else if(ast is Ast.AssignStatement assign_statement)
+            else if(ast is Ast.Block block)
             {
-                UserVariableList.Add(assign_statement.Lhs.Value, Run(assign_statement.Rhs));
-                return 0;
-            }
-            else if (ast is Ast.PrintStatement print_statement)
-            {
-                var parameter = print_statement.Parameter;
-                if(parameter is Ast.Symbol symbol_parameter)
+                foreach (Statement statement in block.StatementList)
                 {
-                    if (UserVariableList.ContainsKey(symbol_parameter.Value)) Console.WriteLine(UserVariableList[symbol_parameter.Value]);
-                    else throw new Exception(string.Format("Undefinded variable {0}",symbol_parameter.Value));
+                    if (statement is AssignStatement assign_statement)
+                    {
+                        if (UserDictionary.Variable.ContainsKey(assign_statement.Lhs.Value)) throw new Exception("Existed variable");
+                        UserDictionary.Variable.Add(assign_statement.Lhs.Value, Run(assign_statement.Rhs));
+                    }
+                    else if (statement is PrintStatement print_statement)
+                    {
+                        var parameter = print_statement.Parameter;
+                        if (parameter is Symbol symbol_parameter)
+                        {
+                            if (UserDictionary.Variable.ContainsKey(symbol_parameter.Value)) Console.WriteLine(UserDictionary.Variable[symbol_parameter.Value]);
+                            else throw new Exception(string.Format("Undefinded variable {0}", symbol_parameter.Value));
+                        }
+                        else Console.WriteLine(Run(print_statement.Parameter));
+                    }
+                    else if (statement is FunctionStatement function_statement)
+                        {
+                        if (UserDictionary.Function.ContainsKey(function_statement.FunctionName.Value)) throw new Exception("Existed function name");
+                        UserDictionary.Function.Add(function_statement.FunctionName.Value, function_statement.Functionblock);
+                    }
+                    else if (statement is DoFunctionStatement do_function)
+                        {
+                            if (UserDictionary.Function.ContainsKey(do_function.FunctionName.Value))
+                                Run(UserDictionary.Function[do_function.FunctionName.Value]);
+                        }
+                    else if(statement is ReturnStatement return_statement)
+                    {
+                        return Run(return_statement.Return_Value);
+                    }
+                    else throw new Exception("Unknowed statement");
                 }
-                else Console.WriteLine(Run(ast));
-                return 0;
+                return InterpreterPassword.MainFunction;
+
             }
-            else
-                return 0;
+            else 
+                throw new Exception("Havn't got any block");
         }
 
         private float Answer(Ast.Exp exp)
@@ -60,8 +92,12 @@ namespace MyLang
                 }
             }
             else if (exp is Ast.Number ast_num)
-            {
                 return ast_num.Value;
+            else if(exp is Ast.Symbol ast_symbol)
+            {
+                if (UserDictionary.Variable.ContainsKey(ast_symbol.Value)) return UserDictionary.Variable[ast_symbol.Value];
+                else if (UserDictionary.Function.ContainsKey(ast_symbol.Value)) return Run(UserDictionary.Function[ast_symbol.Value]);
+                else throw new Exception("Unknowed variable or function");
             }
             else return 0;
         }

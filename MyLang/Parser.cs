@@ -18,7 +18,6 @@ namespace MyLang
             {TokenType.Star, Ast.BinOpType.Multiply },
             {TokenType.Slash, Ast.BinOpType.Divide },
             {TokenType.Equal,Ast.BinOpType.Equal },
-
         };
 
         public static Dictionary<TokenType, Ast.KeywordType> KeywordMap = new Dictionary<TokenType, Ast.KeywordType>
@@ -26,6 +25,9 @@ namespace MyLang
             {TokenType.Let,Ast.KeywordType.Let },
             {TokenType.Print,Ast.KeywordType.Print},
             {TokenType.End,Ast.KeywordType.End },
+            {TokenType.RightBlock,Ast.KeywordType.Rightblock },
+            {TokenType.LeftBlock,Ast.KeywordType.Leftblock },
+            {TokenType.Return,Ast.KeywordType.Return }
         };
         public Parser()
         {
@@ -58,26 +60,25 @@ namespace MyLang
             pos_ = 0;
 
             // TODO: 仮のダミー実装
-            return Program();
-        }
-        
-        private Ast.Ast Program()
-        {
-            return Block();
+            var main_block = new Ast.Block();
+            return Block(main_block);
         }
 
-        private Ast.Ast Block()
+        private Ast.Block Block(Ast.Block block)
         {
             var statement = Statement();
-            if (statement == null) return null;
-            else return Block_Rest(statement);
+            if (statement == null) return block;
+            else
+            {
+                block.AddStatement(statement);
+                return Block_Rest(block);
+            }
         }
 
-        private Ast.Ast Block_Rest(Ast.Statement statement)
+        private Ast.Block Block_Rest(Ast.Block block)
         {
-            var next_block = Block();
-            if (next_block == null) return statement;
-            else return next_block;
+            var next_block = Block(block);
+            return block;
         }
 
         private Ast.Statement Statement()
@@ -93,9 +94,23 @@ namespace MyLang
                         return AssignStatement();
                     case TokenType.Print:
                         return PrintStatement();
+                    case TokenType.Function:
+                        return FunctionStatement();
+                    case TokenType.RightBlock:
+                        pos_ -= 1;
+                        return null;
+                    case TokenType.Return:
+                        return ReturnStatement();
+                    case TokenType.End:
+                        return null;
                     default:
                         throw new Exception("Unknowed Keyword");
                 }
+            }
+            else if (token.IsSymbol)
+            {
+                progress();
+                return new Ast.DoFunctionStatement(token.Text);
             }
             else throw new Exception("Error Statement");
         }
@@ -113,11 +128,8 @@ namespace MyLang
                 else if (rhs is Ast.Exp exp)
                 {
                     var end_sign = Statement_Keyword();
-                    if (end_sign is Ast.Keyword keyword)
-                    {
-                        if (keyword.Type == Ast.KeywordType.End) return new Ast.AssignStatement(lhs_sym, rhs);
-                        else throw new Exception("need ';' after statement");
-                    }
+                    if (end_sign .Type == Ast.KeywordType.End)
+                        return new Ast.AssignStatement(lhs_sym, rhs);
                     else throw new Exception("need ';' after statement");
                 }
                 else throw new Exception(string.Format("The right hand side value need to be exception while assigning"));
@@ -132,16 +144,34 @@ namespace MyLang
             else
             {
                 var end_sign = Statement_Keyword();
-                if (end_sign is Ast.Keyword keyword)
-                {
-                    if (keyword.Type == Ast.KeywordType.End) return new Ast.PrintStatement(parameter);
-                    else throw new Exception("need ';' after statement");
-                }
+                if (end_sign.Type == Ast.KeywordType.End)
+                    return new Ast.PrintStatement(parameter);
                 else throw new Exception("need ';' after statement");
             }
         }
 
+        private Ast.FunctionStatement FunctionStatement()
+        {
+            var function_name = Exp1();
+            if (function_name is Ast.Symbol name)
+            {
+                var left_block = Statement_Keyword();
+                if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need a '{' ");
+                var function_block = new Ast.Block(name.Value);
+                var function_statement = new Ast.FunctionStatement(name, Block(function_block));
+                var right_block = Statement_Keyword();
+                if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need a '}' ");
+                return function_statement;
+            }
+            else throw new Exception("Invalid function name");
+        }
 
+        private Ast.ReturnStatement ReturnStatement()
+        {
+            var exp = Exp1();
+            if (exp == null) return null;
+            return new Ast.ReturnStatement(exp);
+        }
 
         private Ast.Exp Exp1()
         {
@@ -201,7 +231,7 @@ namespace MyLang
 
         }
 
-        private Ast.Statement Statement_Keyword()
+        private Ast.Keyword Statement_Keyword()
         {
             var token = currentToken();
             progress();
