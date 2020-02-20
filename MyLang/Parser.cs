@@ -148,6 +148,7 @@ namespace MyLang
                     var end_sign = Statement_Keyword();
                     if (end_sign .Type == Ast.KeywordType.End)
                     {
+                        if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(lhs_sym.Value)) throw new Exception("Existed Variable");
                         VariablesOwners.Dic[block.FunctionName].Variable.Add(lhs_sym.Value, 0);
                         return new Ast.AssignStatement(lhs_sym, rhs);
                     }

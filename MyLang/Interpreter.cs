@@ -56,6 +56,7 @@ namespace MyLang
                         if (parameter is Symbol symbol_parameter)
                         {
                             if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(symbol_parameter.Value)) Console.WriteLine(VariablesOwners.Dic[block.FunctionName].Variable[symbol_parameter.Value]);
+                            else if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(symbol_parameter.Value)) Console.WriteLine(Run(VariablesOwners.Dic[block.FunctionName].Function[symbol_parameter.Value]));
                             else throw new Exception(string.Format("Undefinded variable {0}", symbol_parameter.Value));
                         }
                         else Console.WriteLine(Run(print_statement.Parameter));

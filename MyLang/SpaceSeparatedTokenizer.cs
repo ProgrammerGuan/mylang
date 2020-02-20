@@ -29,7 +29,7 @@ namespace MyLang
                     is_Single_Word = true;
                     continue;
                 }
-                else if (s == '=' || s=='+' || s=='-' || s=='*' || s=='/') is_Single_Word = true;
+                else if (s == '=' || s=='+' || s=='-' || s=='*' || s=='/' || s=='{') is_Single_Word = true;
                 if (is_Single_Word)
                 {
                     is_Single_Word = false;
@@ -37,7 +37,7 @@ namespace MyLang
                 }
                 if (s.ToString() == ";") now_character.Add(" ");
                 now_character.Add(s.ToString());
-                if (s.ToString() == "=" || s.ToString() == "+" || s.ToString() == "-" || s.ToString() == "*" || s.ToString() == "/" ) now_character.Add(" ");
+                if (s.ToString() == "=" || s.ToString() == "+" || s.ToString() == "-" || s.ToString() == "*" || s.ToString() == "/" || s.ToString()=="{") now_character.Add(" ");
             }
 
             // TODO: 仮のダミー実装
