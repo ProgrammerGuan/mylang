@@ -31,6 +31,10 @@ namespace MyLang
         End,    // ";"
         LeftBlock,  // "{"
         RightBlock, // "}"
+        LeftBracket,    // "("
+        RightBracket,   // ")"
+        Comma,  //  ,
+        At, // "@"
     }
 
     /// <summary>
@@ -56,8 +60,11 @@ namespace MyLang
 
 
         public bool IsSymbol => (Type == TokenType.Symbol);
+        public bool IsAt => (Type == TokenType.At);
         public bool IsBinaryOperator => (Type == TokenType.Plus || Type == TokenType.Minus || Type == TokenType.Star || Type == TokenType.Slash);
-        public bool IsKeyWord => (Type == TokenType.Let || Type==TokenType.Print || Type==TokenType.Function || Type == TokenType.Return || Type==TokenType.End || Type == TokenType.LeftBlock || Type == TokenType.RightBlock );
+        public bool IsKeyWord => (Type == TokenType.Let || Type==TokenType.Print || Type==TokenType.Function || Type == TokenType.Return 
+            || Type==TokenType.End || Type == TokenType.LeftBlock || Type == TokenType.RightBlock
+            || Type==TokenType.LeftBracket || Type==TokenType.RightBracket );
     }
 
     public interface ITokenizer

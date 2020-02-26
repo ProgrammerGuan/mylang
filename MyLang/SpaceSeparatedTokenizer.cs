@@ -30,7 +30,7 @@ namespace MyLang
                     is_Single_Word = true;
                     continue;
                 }// これら記号は全部単語の終了
-                else if (s == '=' || s=='+' || s=='-' || s=='*' || s=='/' || s=='{') is_Single_Word = true;
+                else if (s == '=' || s=='+' || s=='-' || s=='*' || s=='/' || s=='{' || s=='@' || s==',') is_Single_Word = true;
                 if (is_Single_Word)
                 {
                     is_Single_Word = false;
@@ -38,7 +38,8 @@ namespace MyLang
                 }
                 if (s.ToString() == ";") now_character.Add(" ");
                 now_character.Add(s.ToString());
-                if (s.ToString() == "=" || s.ToString() == "+" || s.ToString() == "-" || s.ToString() == "*" || s.ToString() == "/" || s.ToString()=="{") now_character.Add(" ");
+                if (s.ToString() == "=" || s.ToString() == "+" || s.ToString() == "-" || s.ToString() == "*" || s.ToString() == "/" 
+                    || s.ToString()=="{" || s.ToString()=="@" || s.ToString() == "," ) now_character.Add(" ");
             }
 
             // TODO: 仮のダミー実装
@@ -100,6 +101,18 @@ namespace MyLang
                         break;
                     case "}":
                         dummy.Add(new Token(TokenType.RightBlock, "}"));
+                        break;
+                    case "(":
+                        dummy.Add(new Token(TokenType.LeftBracket, "("));
+                        break;
+                    case ")":
+                        dummy.Add(new Token(TokenType.RightBracket, ")"));
+                        break;
+                    case "@":
+                        dummy.Add(new Token(TokenType.At, "@"));
+                        break;
+                    case ",":
+                        dummy.Add(new Token(TokenType.Comma, ","));
                         break;
                     default:
                         // Symbolと数字の時

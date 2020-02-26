@@ -80,6 +80,10 @@ namespace MyLang
             Return, //  return
             Leftblock,  //  {
             Rightblock, //  }
+            LeftBracket,    //  (
+            RightBracket,   //  )
+            Comma,  //  ,
+            At, // @
         }
 
         /// <summary>
@@ -183,15 +187,18 @@ namespace MyLang
         public class DoFunctionStatement : Statement
         {
             public readonly Symbol FunctionName;
-            public DoFunctionStatement(string name,string functionOwner)
+            List<Exp> Parameters;
+            public DoFunctionStatement(string name,string functionOwner ,List<Exp> parameters)
             {
                 FunctionName = new Symbol(name,functionOwner);
+                Parameters = parameters;
             }
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
-                return Tuple.Create("Do", new Ast[] { FunctionName });
+                return Tuple.Create("Do", new Ast[] { FunctionName }.Concat(Parameters).ToArray());
             }
         }
+
         /// <summary>
         /// Return Statementを表すAST
         /// </summary>
@@ -207,7 +214,6 @@ namespace MyLang
                 return Tuple.Create("Return", new Ast[] { Return_Value });
             }
         }
-
         /// <summary>
         /// 数値を表すAST
         /// </summary>
@@ -240,6 +246,22 @@ namespace MyLang
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
                 return Tuple.Create(Value, (Ast[])null);
+            }
+        }
+
+        public class Locate : Exp
+        {
+            public readonly float Value;
+            public readonly string value_string;
+            public Locate(float value)
+            {
+                Value = value;
+                value_string = "@" + Value.ToString();
+            }
+
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create(value_string, (Ast[])null);
             }
         }
         /// <summary>

@@ -27,7 +27,11 @@ namespace MyLang
             {TokenType.End,Ast.KeywordType.End },
             {TokenType.RightBlock,Ast.KeywordType.Rightblock },
             {TokenType.LeftBlock,Ast.KeywordType.Leftblock },
-            {TokenType.Return,Ast.KeywordType.Return }
+            {TokenType.RightBracket,Ast.KeywordType.RightBracket},
+            {TokenType.LeftBracket,Ast.KeywordType.LeftBracket},
+            {TokenType.Return,Ast.KeywordType.Return },
+            {TokenType.At,Ast.KeywordType.At },
+            {TokenType.At,Ast.KeywordType.Comma },
         };
         public Parser()
         {
@@ -133,7 +137,7 @@ namespace MyLang
             else if (token.IsSymbol)
             {
                 progress();
-                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(token.Text)) return new Ast.DoFunctionStatement(token.Text, block.FunctionName);
+                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(token.Text)) return DoFunctionStatement(token, block);
                 else if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(token.Text))
                 {
                     var operater = currentToken();
@@ -241,6 +245,37 @@ namespace MyLang
             return new Ast.ReturnStatement(exp);
         }
 
+        private Ast.DoFunctionStatement DoFunctionStatement(Token function,Ast.Block block)
+        {
+            var left_bracket = Statement_Keyword();
+            if (left_bracket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need a '(' ");
+            var parameters = new List<Ast.Exp>();
+            Parameters(parameters,block);
+            var right_brack = Statement_Keyword();
+            if (right_brack.Type != Ast.KeywordType.RightBracket) throw new Exception("Need a ')' ");
+            var end_sign = Statement_Keyword();
+            if (end_sign.Type != Ast.KeywordType.End) throw new Exception("Need ';' ");
+            return new Ast.DoFunctionStatement(function.Text,block.FunctionName,parameters);
+        }
+
+        private  List<Ast.Exp> Parameters(List<Ast.Exp> parameters,Ast.Block block)
+        {
+            var parameter = Exp_Value(block);
+            if (parameter == null) return parameters;
+            parameters.Add(parameter);
+            return Parameter_rest(parameters, block);
+        } 
+
+        private List<Ast.Exp> Parameter_rest(List<Ast.Exp> parameters,Ast.Block block)
+        {
+            var comma = currentToken();
+            if (comma == null) return parameters;
+            if (comma.Type != TokenType.Comma) throw new Exception("need a ',' ");
+            progress();
+            var next_parameter = Parameters(parameters,block);
+            return next_parameter;
+        }
+
         private Ast.Exp Exp1(Ast.Block block)
         {
             var lhs = Exp2(block);
@@ -295,6 +330,14 @@ namespace MyLang
                 return new Ast.Number(Convert.ToSingle(token.Text));
             else if (token.IsSymbol)
                 return new Ast.Symbol(token.Text,block.FunctionName);
+            else if (token.IsAt)
+            {
+                var index = currentToken();
+                if (!index.IsNumber) throw new Exception("Index must be number");
+                progress();
+                return new Ast.Locate(Convert.ToSingle(token.Text));
+            }
+                
             else throw new Exception(string.Format("Invalid input {0}", token.Text));
 
         }
