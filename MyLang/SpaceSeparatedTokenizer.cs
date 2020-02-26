@@ -13,10 +13,10 @@ namespace MyLang
     /// </summary>
     class SpaceSeparatedTokenizer : ITokenizer
     {
-        private readonly Regex space = new Regex(@"/s+");
-        private readonly Regex number = new Regex(@"/d+");
+        private readonly Regex space = new Regex(@"\s+");
+        private readonly Regex number = new Regex(@"\d+");
         private readonly Regex single_word = new Regex(@"[a-zA-Z][a-zA-Z_0-9]*");
-        private readonly Regex Operator = new Regex(@"[+-*/]");
+        private readonly Regex Operator = new Regex(@"[\+\-\*\/=\;]");
 
 
         public SpaceSeparatedTokenizer()
@@ -27,16 +27,20 @@ namespace MyLang
         public IList<Token> Tokenize(string src)
         {
             var codes = space.Split(src);
+            foreach(string word in codes)
+            {
+                if (Operator.IsMatch(word))
+                {
+
+                }
+            }
             // TODO: 仮のダミー実装
-            var dummy = new List<Token>();
-            
-            dummy.Concat(new IEnumerable<Token>(TokenType.Terminate, "[EOF]"));
-            return dummy;
+            return codes.Select(c => GetToken(c)).Concat(new[] { new Token(TokenType.Terminate, "EOF") }).ToArray();
         }
 
         public Token GetToken(string str)
         {
-
+            return null;
         }
 
     }
