@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using MyLang.Ast;
-
+using System.Linq;
 namespace MyLang
 {
     /// <summary>
@@ -57,17 +57,43 @@ namespace MyLang
                             else if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(symbol_parameter.Value)) Console.WriteLine(Run(VariablesOwners.Dic[block.FunctionName].Function[symbol_parameter.Value]));
                             else throw new Exception(string.Format("Undefinded variable {0}", symbol_parameter.Value));
                         }
+                        else if(parameter is DoFunctionStatement do_function)
+                        {
+                            if (!VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(do_function.FunctionName.Value)) throw new Exception("Unknowed function");
+                            var para_value_list = new List<float>();
+                            foreach (Exp para in do_function.Parameters)
+                            {
+                                if (para is Number num) para_value_list.Add(num.Value);
+                                else if (para is Symbol sym) para_value_list.Add(VariablesOwners.Dic[block.FunctionName].Variable[sym.Value]);
+                                else throw new Exception("unknowed something");
+                            }
+                            Enumerable.Range(0, do_function.Parameters.Count).ToList().ForEach(i =>
+                                VariablesOwners.Dic[do_function.FunctionName.Value].Variable["@" + i.ToString()] = para_value_list[i]
+                            );
+                            Console.WriteLine(Run(VariablesOwners.Dic[block.FunctionName].Function[do_function.FunctionName.Value]));
+                        }
                         else Console.WriteLine(Run(print_statement.Parameter));
                     }
                     else if (statement is FunctionStatement function_statement)
                     {
-                        if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(function_statement.FunctionName.Value)) throw new Exception("Existed function name");
-                        VariablesOwners.Dic[block.FunctionName].Function.Add(function_statement.FunctionName.Value, function_statement.Functionblock);
+                        if (!VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(function_statement.FunctionName.Value)) throw new Exception("Unknowed function name");
+                        VariablesOwners.Dic[block.FunctionName].Function[function_statement.FunctionName.Value] =  function_statement.Functionblock;
                     }
                     else if (statement is DoFunctionStatement do_function)
                     {
-                        if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(do_function.FunctionName.Value))
-                            Run(VariablesOwners.Dic[block.FunctionName].Function[do_function.FunctionName.Value]);
+                        if (!VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(do_function.FunctionName.Value)) throw new Exception("Unknowed function name");
+                        var para_value_list = new List<float>();
+                        foreach (Exp para in do_function.Parameters)
+                        {
+                            if (para is Number num) para_value_list.Add(num.Value);
+                            else if (para is Symbol sym) para_value_list.Add(VariablesOwners.Dic[block.FunctionName].Variable[sym.Value]);
+                            else throw new Exception("unknowed something");
+                        }
+                        Enumerable.Range(0, do_function.Parameters.Count).ToList().ForEach(i =>
+                            VariablesOwners.Dic[do_function.FunctionName.Value].Variable["@" + i.ToString()] = para_value_list[i]
+                        );
+                        
+                        Run(VariablesOwners.Dic[block.FunctionName].Function[do_function.FunctionName.Value]);
                     }
                     else if(statement is ReturnStatement return_statement)
                     {
@@ -120,6 +146,13 @@ namespace MyLang
                     else throw new Exception("Unknowned Variable");
                 }
                 else throw new Exception("Unknowed variable or function");
+            }
+            else if(exp is Ast.Locate locate)
+            {
+                if (!VariablesOwners.Dic.ContainsKey(locate.Owner)) throw new Exception("Unknowed function");
+                if (VariablesOwners.Dic[locate.Owner].Variable.ContainsKey(locate.value_string))
+                    return VariablesOwners.Dic[locate.Owner].Variable[locate.value_string];
+                else throw new Exception("Error Parameter");
             }
             else return 0;
         }

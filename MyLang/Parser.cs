@@ -31,12 +31,13 @@ namespace MyLang
             {TokenType.LeftBracket,Ast.KeywordType.LeftBracket},
             {TokenType.Return,Ast.KeywordType.Return },
             {TokenType.At,Ast.KeywordType.At },
-            {TokenType.At,Ast.KeywordType.Comma },
+            {TokenType.Comma,Ast.KeywordType.Comma },
         };
-        public Parser()
-        {
 
-        }
+        //public Parser()
+        //{
+
+        //}
 
         /// <summary>
         /// 現在のトークンを取得する
@@ -148,7 +149,7 @@ namespace MyLang
                         var lhs = new Ast.Symbol(token.Text,block.FunctionName);
                         return EqualStatement(lhs,block);
                     }
-                    else throw new Exception("Knowed active");
+                    else throw new Exception("Unknowed active");
                 }
                 else throw new Exception("Unknowed function");
             }
@@ -211,10 +212,11 @@ namespace MyLang
 
         private Ast.PrintStatement PrintStatement(Ast.Block block)
         {
-            var parameter = Exp1(block);
+            var parameter = Statement(block);
             if (parameter == null) throw new Exception("print need parameter after it ");
             else
             {
+                if (parameter is Ast.DoFunctionStatement fun) return new Ast.PrintStatement(fun);
                 var end_sign = Statement_Keyword();
                 if (end_sign.Type == Ast.KeywordType.End)
                     return new Ast.PrintStatement(parameter);
@@ -233,6 +235,8 @@ namespace MyLang
                 var function_statement = new Ast.FunctionStatement(name, Block(function_block));
                 var right_block = Statement_Keyword();
                 if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need a '}' ");
+                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(function_block.FunctionName)) throw new Exception("Existed Function name");
+                VariablesOwners.Dic[block.FunctionName].Function.Add(function_block.FunctionName, null);
                 return function_statement;
             }
             else throw new Exception("Invalid function name");
@@ -255,6 +259,9 @@ namespace MyLang
             if (right_brack.Type != Ast.KeywordType.RightBracket) throw new Exception("Need a ')' ");
             var end_sign = Statement_Keyword();
             if (end_sign.Type != Ast.KeywordType.End) throw new Exception("Need ';' ");
+            Enumerable.Range(0, parameters.Count).ToList().ForEach(i =>
+                VariablesOwners.Dic[function.Text].Variable.Add("@" + i.ToString(), 0)
+            );
             return new Ast.DoFunctionStatement(function.Text,block.FunctionName,parameters);
         }
 
@@ -269,7 +276,7 @@ namespace MyLang
         private List<Ast.Exp> Parameter_rest(List<Ast.Exp> parameters,Ast.Block block)
         {
             var comma = currentToken();
-            if (comma == null) return parameters;
+            if (comma.Type == TokenType.RightBracket) return parameters;
             if (comma.Type != TokenType.Comma) throw new Exception("need a ',' ");
             progress();
             var next_parameter = Parameters(parameters,block);
@@ -335,7 +342,7 @@ namespace MyLang
                 var index = currentToken();
                 if (!index.IsNumber) throw new Exception("Index must be number");
                 progress();
-                return new Ast.Locate(Convert.ToSingle(token.Text));
+                return new Ast.Locate(Convert.ToSingle(index.Text),block.FunctionName);
             }
                 
             else throw new Exception(string.Format("Invalid input {0}", token.Text));

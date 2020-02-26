@@ -154,8 +154,8 @@ namespace MyLang
         /// </summary>
         public class PrintStatement : Statement
         {
-            public readonly Exp Parameter;
-            public PrintStatement(Exp parameter)
+            public readonly Ast Parameter;
+            public PrintStatement(Ast parameter)
             {
                 Parameter = parameter;
             }
@@ -187,7 +187,7 @@ namespace MyLang
         public class DoFunctionStatement : Statement
         {
             public readonly Symbol FunctionName;
-            List<Exp> Parameters;
+            public readonly List<Exp> Parameters;
             public DoFunctionStatement(string name,string functionOwner ,List<Exp> parameters)
             {
                 FunctionName = new Symbol(name,functionOwner);
@@ -253,9 +253,11 @@ namespace MyLang
         {
             public readonly float Value;
             public readonly string value_string;
-            public Locate(float value)
+            public readonly string Owner;
+            public Locate(float value,string owner)
             {
                 Value = value;
+                Owner = owner;
                 value_string = "@" + Value.ToString();
             }
 
