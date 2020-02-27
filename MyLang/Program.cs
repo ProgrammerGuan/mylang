@@ -160,7 +160,7 @@ Example:
         var codes = codeList.ToArray().ToString();
         // Tokenize を行う
         var tokens = tokenizer.Tokenize(string.Join(" ", codeList));
-        //Console.WriteLine(string.Join(" ", tokens.Select(t => t.Text).ToArray()));
+        Console.WriteLine(string.Join(" ", tokens.Select(t => t.Text).ToArray()));
         var ast = parser.ProgramingParse(tokens);
         Console.WriteLine(new MyLang.Ast.AstDisplayer().BuildString(ast, false));
         interpreter.Run(ast);

@@ -54,6 +54,7 @@ namespace MyLang
                         if (parameter is Symbol symbol_parameter)
                         {
                             if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(symbol_parameter.Value)) Console.WriteLine(VariablesOwners.Dic[block.FunctionName].Variable[symbol_parameter.Value]);
+                            else if(VariablesOwners.Dic["main"].Variable.ContainsKey(symbol_parameter.Value)) Console.WriteLine(VariablesOwners.Dic["main"].Variable[symbol_parameter.Value]);
                             else throw new Exception(string.Format("Undefinded variable {0}", symbol_parameter.Value));
                         }
                         else if(parameter is FunctionCall do_function)
@@ -80,7 +81,7 @@ namespace MyLang
                     }
                     else if (statement is ExpresstionStatement exp_statement)
                     {
-                        Run(exp_statement);
+                        Run(exp_statement.Expression);
                     }
                     else if(statement is ReturnStatement return_statement)
                     {
@@ -90,6 +91,36 @@ namespace MyLang
                     {
                         if (!VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(equal_statement.Lhs.Value)) throw new Exception("Unknowed variable");
                         VariablesOwners.Dic[block.FunctionName].Variable[equal_statement.Lhs.Value] = Run(equal_statement.Rhs);
+                    }
+                    else if(statement is IfStatement if_statement)
+                    {
+                        foreach(KeyValuePair<Exp,Block> condition in if_statement.Condition_Mission)
+                        {
+                            if(condition.Key is Compression compression)
+                            {
+                                if (Compare(compression))
+                                {
+                                    Run(condition.Value);
+                                    break;
+                                }
+                            }
+                            else if(condition.Key is Number number)
+                            {
+                                if (number.Value != 0)
+                                {
+                                    Run(condition.Value);
+                                    break;
+                                }
+                            }
+                            else if(condition.Key is Symbol symbol)
+                            {
+                                if (symbol.Value == "Else")
+                                {
+                                    Run(condition.Value);
+                                    break;
+                                }
+                            }
+                        }
                     }
                     else throw new Exception("Unknowed statement");
                 }
@@ -156,5 +187,33 @@ namespace MyLang
             else return 0;
         }
 
+        private bool Compare(Compression compression)
+        {
+            var lhs = Run(compression.Lhs);
+            var rhs = Run(compression.Rhs);
+            switch (compression.CompareOp)
+            {
+                case CompareOpType.Larger:
+                    if (lhs > rhs) return true;
+                    else return false;
+                case CompareOpType.Smaller:
+                    if (lhs < rhs) return true;
+                    else return false;
+                case CompareOpType.DoubleEqual:
+                    if (lhs == rhs) return true;
+                    else return false;
+                case CompareOpType.LargerEqual:
+                    if (lhs >= rhs) return true;
+                    else return false;
+                case CompareOpType.SmallerEqual:
+                    if (lhs <= rhs) return true;
+                    else return false;
+                case CompareOpType.NotEqual:
+                    if (lhs != rhs) return true;
+                    else return false;
+                default:
+                    throw new Exception("Error Compare");
+            }
+        }
     }
 }

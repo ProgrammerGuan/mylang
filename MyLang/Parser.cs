@@ -32,12 +32,24 @@ namespace MyLang
             {TokenType.Return,Ast.KeywordType.Return },
             {TokenType.At,Ast.KeywordType.At },
             {TokenType.Comma,Ast.KeywordType.Comma },
+            {TokenType.If,Ast.KeywordType.If },
+            {TokenType.Elif,Ast.KeywordType.Elif },
+            {TokenType.Else,Ast.KeywordType.Else },
         };
 
-        //public Parser()
-        //{
+        static Dictionary<TokenType, Ast.CompareOpType> CompareOpMap = new Dictionary<TokenType, Ast.CompareOpType>
+        {
+            {TokenType.Larger,Ast.CompareOpType.Larger },
+            {TokenType.Smaller,Ast.CompareOpType.Smaller },
+            {TokenType.DoubleEqual,Ast.CompareOpType.DoubleEqual},
+            {TokenType.LargerEqual,Ast.CompareOpType.LargerEqual },
+            {TokenType.SmallerEqual,Ast.CompareOpType.SmallerEqual },
+            {TokenType.NotEqual,Ast.CompareOpType.NotEqual},
+        };
+        public Parser()
+        {
 
-        //}
+        }
 
         /// <summary>
         /// 現在のトークンを取得する
@@ -113,9 +125,10 @@ namespace MyLang
         {
             var token = currentToken();
             if (token == null) return null;
-            progress();
             if (token.IsKeyWord)
             {
+                progress();
+
                 switch (token.Type)
                 {
                     case TokenType.Let:
@@ -131,6 +144,8 @@ namespace MyLang
                         return ReturnStatement(block);
                     case TokenType.End:
                         return null;
+                    case TokenType.If:
+                        return IfStatement(block);
                     default:
                         throw new Exception("Unknowed Keyword");
                 }
@@ -235,6 +250,68 @@ namespace MyLang
             var end_sign = Statement_Keyword();
             if (end_sign.Type != Ast.KeywordType.End) throw new Exception("need ';' after statement");
             return new Ast.ExpresstionStatement(exp);
+        }
+
+        private Ast.IfStatement IfStatement(Ast.Block block)
+        {
+            var left_barcket = Statement_Keyword();
+            if (left_barcket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need '(' ");
+            var condition = Exp(block);
+            var right_barcket = Statement_Keyword();
+            if (right_barcket.Type != Ast.KeywordType.RightBracket) throw new Exception("Need '(' ");
+            var left_block = Statement_Keyword();
+            if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need '{' ");
+            var if_block = Block(new Ast.Block("if"+Ast.IfStatement.IfCount));
+            var right_block = Statement_Keyword();
+            if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
+            var if_statement = new Ast.IfStatement();
+            if_statement.AddCondition(condition, if_block);
+            ElifStatement(if_statement, block);
+            return ElseStatement(if_statement, block);
+        }
+
+        private void ElifStatement(Ast.IfStatement ifStatement, Ast.Block block)
+        {
+            var elif = currentToken();
+            if (elif.Type != TokenType.Elif) return;
+            progress();
+            var left_barcket = Statement_Keyword();
+            if (left_barcket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need '(' ");
+            var condition = Exp(block);
+            var right_barcket = Statement_Keyword();
+            if (right_barcket.Type != Ast.KeywordType.RightBracket) throw new Exception("Need '(' ");
+            var left_block = Statement_Keyword();
+            if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need '{' ");
+            var if_block = Block(new Ast.Block("if" + Ast.IfStatement.IfCount));
+            var right_block = Statement_Keyword();
+            if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
+            ifStatement.AddCondition(condition, if_block);
+            ElifStatement(ifStatement, block);
+        }
+
+        private Ast.IfStatement ElseStatement(Ast.IfStatement ifStatement, Ast.Block block)
+        {
+            var els = currentToken();
+            if (els.Type != TokenType.Else) return ifStatement;
+            progress();
+            var left_block = Statement_Keyword();
+            if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need '{' ");
+            var if_block = Block(new Ast.Block("if" + Ast.IfStatement.IfCount));
+            var right_block = Statement_Keyword();
+            if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
+            ifStatement.AddCondition(new Ast.Symbol("Else", if_block.FunctionName), if_block);
+            return ifStatement;
+        }
+
+        private Ast.Exp Exp(Ast.Block block)
+        {
+            var lhs = Exp1(block);
+            if (lhs == null) return null;
+            var compareOp = currentToken();
+            if (!compareOp.IsCompareOperator) return lhs;
+            progress();
+            var rhs = Exp1(block);
+            return new Ast.Compression(CompareOpMap[compareOp.Type], lhs, rhs);
         }
 
         private Ast.Exp Exp1(Ast.Block block)

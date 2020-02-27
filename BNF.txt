@@ -3,7 +3,7 @@ pragram ::= block
 block ::= statement block_rest
 block_rest ::= ε | block
 
-statiment ::= assign-statiment | print-statement | return-statement | function-statement | expression-statement
+statiment ::= assign-statiment | print-statement | return-statement | function-statement | expression-statement | if-statement
 
 assign-statement ::= "let" symbol "=" exp ";"
 
@@ -15,18 +15,25 @@ function-statement ::= "function" symbol "{" block "}"
 
 expression-statement ::= exp ";"
 
-exp ::= exp1
+if-statement ::= "if" "(" exp ")" "{" block "}" elif-statement else-statement
+elif-statement ::= ε | "elif" "(" exp ")" "{" block "}" elif-statement                
+else-statement ::= ε | "else" "{" block "}"
+
+exp ::= exp1 | exp_compression
 
 exp1 ::= exp2 exp1_rest
 exp1_rest ::= ε | exp1_op exp2 exp1_rest
 
-exp2 ::= exp2 exp2_rest
+exp2 ::= exp_value exp2_rest
 exp2_rest ::= ε | exp2_op exp_value exp2_rest
+
+exp_compression ::= exp compression_op exp
+compression_op ::= ">" | "<" | "==" | ">=" | "<=" | "!="
 
 exp_value = number | symbol | function-call | locate-symbol
 
 function-call ::= symbol "(" parameter ")"
-parameter ::= exp_value parameter_rest
+parameter ::= exp parameter_rest
 parameter_rest ::= ε | "," parameter
 
 locate-symbol ::= "@" number

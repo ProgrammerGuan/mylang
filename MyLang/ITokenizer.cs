@@ -22,11 +22,21 @@ namespace MyLang
         Slash, // "/"
         Equal, // "="
 
+        //Compare Operator
+        Larger, //  ">"
+        Smaller,    // "<"
+        DoubleEqual,    // "=="
+        LargerEqual,    //  ">="
+        SmallerEqual,   //  "<="
+        NotEqual,   //  "!="
         //keyword
         Let,    //"let"
         Print,  // "print"
         Function,   //function
         Return, // return
+        If, //if
+        Elif,   //  elif
+        Else,  //   else
         // keyword symbol
         End,    // ";"
         LeftBlock,  // "{"
@@ -58,13 +68,17 @@ namespace MyLang
         //    get { return (Type == TokenType.Number); }
         //}
 
-
+        
         public bool IsSymbol => (Type == TokenType.Symbol);
         public bool IsAt => (Type == TokenType.At);
         public bool IsBinaryOperator => (Type == TokenType.Plus || Type == TokenType.Minus || Type == TokenType.Star || Type == TokenType.Slash);
-        public bool IsKeyWord => (Type == TokenType.Let || Type==TokenType.Print || Type==TokenType.Function || Type == TokenType.Return 
+        public bool IsCompareOperator => (Type == TokenType.Larger || Type == TokenType.Smaller || Type == TokenType.DoubleEqual
+            || Type == TokenType.LargerEqual || Type == TokenType.SmallerEqual || Type == TokenType.NotEqual);
+        public bool IsKeyWord => (Type == TokenType.Let || Type==TokenType.Print || Type==TokenType.Function 
+            || Type == TokenType.Return || Type==TokenType.If || Type==TokenType.Elif || Type==TokenType.Else
             || Type==TokenType.End || Type == TokenType.LeftBlock || Type == TokenType.RightBlock
             || Type==TokenType.LeftBracket || Type==TokenType.RightBracket );
+        
     }
 
     public interface ITokenizer

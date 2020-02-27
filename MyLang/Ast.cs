@@ -78,6 +78,9 @@ namespace MyLang
             Print,  // print
             Function,   //function
             Return, //  return
+            If, //if
+            Elif,//  elif
+            Else,   //  else
             Leftblock,  //  {
             Rightblock, //  }
             LeftBracket,    //  (
@@ -86,6 +89,15 @@ namespace MyLang
             At, // @
         }
 
+        public enum CompareOpType
+        {
+            Larger,     // >
+            Smaller,    // <
+            DoubleEqual,    // ==
+            LargerEqual,    //  >=
+            SmallerEqual,   //  <=
+            NotEqual,   //  !=
+        }
         /// <summary>
         /// 二項演算子(Binary Operator)を表すAST
         /// </summary>
@@ -106,7 +118,6 @@ namespace MyLang
                 return Tuple.Create(Operator.ToString(), new Ast[] { Lhs, Rhs });
             }
         }
-        
         /// <summary>
         /// Assign Statementを表すAST
         /// </summary>
@@ -182,11 +193,6 @@ namespace MyLang
             }
         }
         /// <summary>
-        /// DoFunction Statementを表すAST
-        /// </summary>
-        
-
-        /// <summary>
         /// Return Statementを表すAST
         /// </summary>
         public class ReturnStatement : Statement
@@ -213,6 +219,31 @@ namespace MyLang
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
                 return Tuple.Create("Expression", new Ast[] { Expression });
+            }
+        }
+
+        public class IfStatement : Statement
+        {
+            public static int IfCount = 0;
+            public Dictionary<Exp, Block> Condition_Mission;
+            public IfStatement()
+            {
+                Condition_Mission = new Dictionary<Exp, Block>();
+            }
+            public void AddCondition(Exp condition,Block block)
+            {
+                Condition_Mission.Add(condition, block);
+            }
+
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                var ReturnList = new List<Ast>();
+                foreach(KeyValuePair<Exp,Block> item in Condition_Mission)
+                {
+                    ReturnList.Add(item.Key);
+                    ReturnList.Add(item.Value);
+                }
+                return Tuple.Create("If", ReturnList.ToArray());
             }
         }
         /// <summary>
@@ -284,6 +315,23 @@ namespace MyLang
                 return Tuple.Create(value_string, (Ast[])null);
             }
         }
+       
+        public class Compression : Exp
+        {
+            public readonly CompareOpType CompareOp;
+            public readonly Exp Lhs, Rhs;
+            public Compression(CompareOpType compareOp,Exp lhs,Exp rhs)
+            {
+                CompareOp = compareOp;
+                Lhs = lhs;
+                Rhs = rhs;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create(CompareOp.ToString(), new Ast[] { Lhs, Rhs });
+            }
+        }
+        
         /// <summary>
         /// キーワードを表すAST
         /// </summary>

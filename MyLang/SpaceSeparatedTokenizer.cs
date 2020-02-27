@@ -30,7 +30,7 @@ namespace MyLang
                     is_Single_Word = true;
                     continue;
                 }// これら記号は全部単語の終了
-                else if (s == '=' || s=='+' || s=='-' || s=='*' || s=='/' || s=='{' || s=='@' || s==',' || s== '(') is_Single_Word = true;
+                else if (s == '=' || s=='+' || s=='-' || s=='*' || s=='/' || s=='{' || s=='@' || s==',' || s== '(' || s == ')' || s == '>' || s == '<' || s == '!') is_Single_Word = true;
                 if (is_Single_Word)
                 {
                     is_Single_Word = false;
@@ -91,7 +91,12 @@ namespace MyLang
                         }
                         break;
                     case "=":
-                        dummy.Add(new Token(TokenType.Equal, "="));
+                        if (now_character[i + 3] != "=") dummy.Add(new Token(TokenType.Equal, "="));
+                        else
+                        {
+                            i+=3;
+                            dummy.Add(new Token(TokenType.DoubleEqual, "=="));
+                        }
                         break;
                     case ";":
                         dummy.Add(new Token(TokenType.End, ";"));
@@ -113,6 +118,29 @@ namespace MyLang
                         break;
                     case ",":
                         dummy.Add(new Token(TokenType.Comma, ","));
+                        break;
+                    case ">":
+                        if(now_character[i+2]!="=") dummy.Add(new Token(TokenType.Larger, ">"));
+                        else
+                        {
+                            i+=2;
+                            dummy.Add(new Token(TokenType.LargerEqual, ">="));
+                        }
+                        break;
+                    case "<":
+                        if(now_character[i+2]!="=") dummy.Add(new Token(TokenType.Smaller, "<"));
+                        else
+                        {
+                            i+=2;
+                            dummy.Add(new Token(TokenType.SmallerEqual, "<="));
+                        }
+                        break;
+                    case "!":
+                        if (now_character[i + 2] == "=")
+                        {
+                            i += 2;
+                            dummy.Add(new Token(TokenType.NotEqual, "!="));
+                        }
                         break;
                     default:
                         // Symbolと数字の時
@@ -146,6 +174,15 @@ namespace MyLang
                                         break;
                                     case "return":
                                         dummy.Add(new Token(TokenType.Return, "Return"));
+                                        break;
+                                    case "if":
+                                        dummy.Add(new Token(TokenType.If, "If"));
+                                        break;
+                                    case "elif":
+                                        dummy.Add(new Token(TokenType.Elif, "Elif"));
+                                        break;
+                                    case "else":
+                                        dummy.Add(new Token(TokenType.Else, "Else"));
                                         break;
                                     default:
                                         dummy.Add(new Token(TokenType.Symbol, string.Join("", single_word.ToArray())));
