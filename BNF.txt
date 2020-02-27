@@ -1,0 +1,37 @@
+pragram ::= block
+
+block ::= statement block_rest
+block_rest ::= ε | block
+
+statiment ::= assign-statiment | print-statement | return-statement | function-statement | expression-statement
+
+assign-statement ::= "let" symbol "=" exp ";"
+
+print-statement ::= "print" exp ";"
+
+return-statement ::= "return" exp ";"
+
+function-statement ::= "function" symbol "{" block "}"
+
+expression-statement ::= exp ";"
+
+exp ::= exp1
+
+exp1 ::= exp2 exp1_rest
+exp1_rest ::= ε | exp1_op exp2 exp1_rest
+
+exp2 ::= exp2 exp2_rest
+exp2_rest ::= ε | exp2_op exp_value exp2_rest
+
+exp_value = number | symbol | function-call | locate-symbol
+
+function-call ::= symbol "(" parameter ")"
+parameter ::= exp_value parameter_rest
+parameter_rest ::= ε | "," parameter
+
+locate-symbol ::= "@" number
+
+
+
+exp1_op ::= "+" | "-"
+exp2_op ::= "*" | "/"

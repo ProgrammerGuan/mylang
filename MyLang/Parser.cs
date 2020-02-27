@@ -113,9 +113,9 @@ namespace MyLang
         {
             var token = currentToken();
             if (token == null) return null;
+            progress();
             if (token.IsKeyWord)
             {
-                progress();
                 switch (token.Type)
                 {
                     case TokenType.Let:
@@ -135,25 +135,9 @@ namespace MyLang
                         throw new Exception("Unknowed Keyword");
                 }
             }
-            else if (token.IsSymbol)
-            {
-                progress();
-                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(token.Text)) return DoFunctionStatement(token, block);
-                else if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(token.Text))
-                {
-                    var operater = currentToken();
-                    progress();
-                    if (operater == null) throw new Exception("None active");
-                    else if (operater.Type == TokenType.Equal)
-                    {
-                        var lhs = new Ast.Symbol(token.Text,block.FunctionName);
-                        return EqualStatement(lhs,block);
-                    }
-                    else throw new Exception("Unknowed active");
-                }
-                else throw new Exception("Unknowed function");
-            }
-            else throw new Exception("Error Statement");
+            else
+                return ExpressionStatement(block);
+            
         }
 
         private Ast.AssignStatement AssignStatement(Ast.Block block)
@@ -212,16 +196,11 @@ namespace MyLang
 
         private Ast.PrintStatement PrintStatement(Ast.Block block)
         {
-            var parameter = Statement(block);
-            if (parameter == null) throw new Exception("print need parameter after it ");
-            else
-            {
-                if (parameter is Ast.DoFunctionStatement fun) return new Ast.PrintStatement(fun);
-                var end_sign = Statement_Keyword();
-                if (end_sign.Type == Ast.KeywordType.End)
-                    return new Ast.PrintStatement(parameter);
-                else throw new Exception("need ';' after statement");
-            }
+            var exp = Exp1(block);
+            if (exp == null) throw new Exception("print need parameter after it ");
+            var end_sign = Statement_Keyword();
+            if (end_sign.Type != Ast.KeywordType.End) throw new Exception("need ';' after statement");
+            return new Ast.PrintStatement(exp);
         }
 
         private Ast.FunctionStatement FunctionStatement(Ast.Block block)
@@ -249,38 +228,13 @@ namespace MyLang
             return new Ast.ReturnStatement(exp);
         }
 
-        private Ast.DoFunctionStatement DoFunctionStatement(Token function,Ast.Block block)
+        private Ast.ExpresstionStatement ExpressionStatement(Ast.Block block)
         {
-            var left_bracket = Statement_Keyword();
-            if (left_bracket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need a '(' ");
-            var parameters = new List<Ast.Exp>();
-            Parameters(parameters,block);
-            var right_brack = Statement_Keyword();
-            if (right_brack.Type != Ast.KeywordType.RightBracket) throw new Exception("Need a ')' ");
+            var exp = Exp1(block);
+            if (exp == null) throw new Exception("None expression");
             var end_sign = Statement_Keyword();
-            if (end_sign.Type != Ast.KeywordType.End) throw new Exception("Need ';' ");
-            Enumerable.Range(0, parameters.Count).ToList().ForEach(i =>
-                VariablesOwners.Dic[function.Text].Variable.Add("@" + i.ToString(), 0)
-            );
-            return new Ast.DoFunctionStatement(function.Text,block.FunctionName,parameters);
-        }
-
-        private  List<Ast.Exp> Parameters(List<Ast.Exp> parameters,Ast.Block block)
-        {
-            var parameter = Exp_Value(block);
-            if (parameter == null) return parameters;
-            parameters.Add(parameter);
-            return Parameter_rest(parameters, block);
-        } 
-
-        private List<Ast.Exp> Parameter_rest(List<Ast.Exp> parameters,Ast.Block block)
-        {
-            var comma = currentToken();
-            if (comma.Type == TokenType.RightBracket) return parameters;
-            if (comma.Type != TokenType.Comma) throw new Exception("need a ',' ");
-            progress();
-            var next_parameter = Parameters(parameters,block);
-            return next_parameter;
+            if (end_sign.Type != Ast.KeywordType.End) throw new Exception("need ';' after statement");
+            return new Ast.ExpresstionStatement(exp);
         }
 
         private Ast.Exp Exp1(Ast.Block block)
@@ -333,20 +287,61 @@ namespace MyLang
         {
             var token = currentToken();
             progress();
-            if (token.IsNumber)
-                return new Ast.Number(Convert.ToSingle(token.Text));
-            else if (token.IsSymbol)
-                return new Ast.Symbol(token.Text,block.FunctionName);
-            else if (token.IsAt)
+            switch (token.Type)
             {
-                var index = currentToken();
-                if (!index.IsNumber) throw new Exception("Index must be number");
-                progress();
-                return new Ast.Locate(Convert.ToSingle(index.Text),block.FunctionName);
+                case TokenType.Number:
+                    return new Ast.Number(Convert.ToSingle(token.Text));
+                case TokenType.Symbol:
+                    return VariableOrFunctionCall(token,block);
+                case TokenType.At:
+                    var index = currentToken();
+                    if (!index.IsNumber) throw new Exception("Index must be number");
+                    progress();
+                    return new Ast.LocateSymbol(Convert.ToSingle(index.Text), block.FunctionName);
+                default:
+                    throw new Exception(string.Format("Invalid input {0}", token.Text));
             }
-                
-            else throw new Exception(string.Format("Invalid input {0}", token.Text));
+        }
 
+        private Ast.Exp VariableOrFunctionCall(Token token, Ast.Block block)
+        {
+            var next_token = currentToken();
+            if (next_token.Type != TokenType.LeftBracket) return new Ast.Symbol(token.Text, block.FunctionName);
+            return FunctionCall(token, block);
+        }
+
+        private Ast.FunctionCall FunctionCall(Token function, Ast.Block block)
+        {
+            var left_bracket = Statement_Keyword();
+            if (left_bracket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need a '(' ");
+            var parameters = new List<Ast.Exp>();
+            Parameters(parameters, block);
+            var right_brack = Statement_Keyword();
+            if (right_brack.Type != Ast.KeywordType.RightBracket) throw new Exception("Need a ')' ");
+            foreach(Ast.Exp par in parameters)
+            {
+                if (!VariablesOwners.Dic[function.Text].Variable.ContainsKey("@" + par.ToString()))
+                    VariablesOwners.Dic[function.Text].Variable.Add("@" + par.ToString(), 0);
+            }
+            return new Ast.FunctionCall(function.Text, block.FunctionName, parameters);
+        }
+
+        private List<Ast.Exp> Parameters(List<Ast.Exp> parameters, Ast.Block block)
+        {
+            var parameter = Exp_Value(block);
+            if (parameter == null) return parameters;
+            parameters.Add(parameter);
+            return Parameter_rest(parameters, block);
+        }
+
+        private List<Ast.Exp> Parameter_rest(List<Ast.Exp> parameters, Ast.Block block)
+        {
+            var comma = currentToken();
+            if (comma.Type == TokenType.RightBracket) return parameters;
+            if (comma.Type != TokenType.Comma) throw new Exception("need a ',' ");
+            progress();
+            var next_parameter = Parameters(parameters, block);
+            return next_parameter;
         }
 
         private Ast.Keyword Statement_Keyword()

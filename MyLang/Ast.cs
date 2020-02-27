@@ -138,7 +138,7 @@ namespace MyLang
             }
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
-                if (Rhs is DoFunctionStatement function)
+                if (Rhs is FunctionCall function)
                 {
                     return Tuple.Create("Equal", new Ast[] { Lhs, function.FunctionName });
                 }
@@ -184,20 +184,7 @@ namespace MyLang
         /// <summary>
         /// DoFunction Statementを表すAST
         /// </summary>
-        public class DoFunctionStatement : Statement
-        {
-            public readonly Symbol FunctionName;
-            public readonly List<Exp> Parameters;
-            public DoFunctionStatement(string name,string functionOwner ,List<Exp> parameters)
-            {
-                FunctionName = new Symbol(name,functionOwner);
-                Parameters = parameters;
-            }
-            public override Tuple<string, Ast[]> GetDisplayInfo()
-            {
-                return Tuple.Create("Do", new Ast[] { FunctionName }.Concat(Parameters).ToArray());
-            }
-        }
+        
 
         /// <summary>
         /// Return Statementを表すAST
@@ -212,6 +199,20 @@ namespace MyLang
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
                 return Tuple.Create("Return", new Ast[] { Return_Value });
+            }
+        }
+
+        public class ExpresstionStatement : Statement
+        {
+            public readonly Exp Expression;
+            public ExpresstionStatement(Exp exp)
+            {
+                Expression = exp;
+            }
+
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("Expression", new Ast[] { Expression });
             }
         }
         /// <summary>
@@ -249,12 +250,29 @@ namespace MyLang
             }
         }
 
-        public class Locate : Exp
+        public class FunctionCall : Exp
+        {
+            public readonly Symbol FunctionName;
+            public readonly List<Exp> Parameters;
+            public readonly string Owner;
+            public FunctionCall(string name, string functionOwner, List<Exp> parameters)
+            {
+                FunctionName = new Symbol(name, functionOwner);
+                Parameters = parameters;
+                Owner = functionOwner;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("Do", new Ast[] { FunctionName }.Concat(Parameters).ToArray());
+            }
+        }
+
+        public class LocateSymbol : Exp
         {
             public readonly float Value;
             public readonly string value_string;
             public readonly string Owner;
-            public Locate(float value,string owner)
+            public LocateSymbol(float value,string owner)
             {
                 Value = value;
                 Owner = owner;
