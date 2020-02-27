@@ -16,8 +16,8 @@ namespace MyLang
         private readonly Regex space = new Regex(@"\s+");
         private readonly Regex number = new Regex(@"\d+");
         private readonly Regex single_word = new Regex(@"[a-zA-Z][a-zA-Z_0-9]*");
-        private readonly Regex Operator = new Regex(@"[\+\-\*\/=]");
-        private readonly Regex KeySymbol = new Regex(@"[\;\(\)\{\}]");
+        private readonly Regex Operator = new Regex(@"[\+\-\*\/]");
+        private readonly Regex KeySymbol = new Regex(@"[=\;\(\)\{\}]");
         public SpaceSeparatedTokenizer()
         {
 
@@ -42,22 +42,9 @@ namespace MyLang
                 {
                     var sym = KeySymbol.Match(word).ToString();
                     var num = KeySymbol.Split(word);
-                    switch (sym)
-                    {
-                        case "(":
-                        case "{":
-                            if(num[0]!="")
-                                codes.Add(num[0]);
-                            codes.Add(sym);
-                            break;
-                        case ")":
-                        case "}":
-                        case ";":
-                            codes.Add(sym);
-                            if(num[0]!="")
-                                codes.Add(num[0]);
-                            break;
-                    }
+                    if (num[0] != "") codes.Add(num[0]);
+                    codes.Add(sym);
+                    if (num[1] != "") codes.Add(num[1]);
                 }
                 else if(word!="") codes.Add(word);
             }
