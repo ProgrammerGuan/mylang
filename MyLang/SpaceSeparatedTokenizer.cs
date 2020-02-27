@@ -34,11 +34,11 @@ namespace MyLang
                 {
                     var Op = Operator.Match(word);
                     var nums = Operator.Split(word);
-                    codes.Add(nums[0]);
+                    if (nums[0] != "") codes.Add(nums[0]);
                     codes.Add(Op.ToString());
-                    codes.Add(nums[1]);
+                    if (nums[1] != "") codes.Add(nums[1]);
                 }
-                if (KeySymbol.IsMatch(word))
+                else if (KeySymbol.IsMatch(word))
                 {
                     var sym = KeySymbol.Match(word).ToString();
                     var num = KeySymbol.Split(word);
