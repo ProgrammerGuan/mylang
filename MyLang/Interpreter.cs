@@ -156,8 +156,10 @@ namespace MyLang
             {
                 if (VariablesOwners.Dic.ContainsKey(ast_symbol.Owner))
                 {
-                    if (!VariablesOwners.Dic[ast_symbol.Owner].Variable.ContainsKey(ast_symbol.Value)) throw new Exception("Unknowned Variable");
-                    return VariablesOwners.Dic[ast_symbol.Owner].Variable[ast_symbol.Value];
+                    if (VariablesOwners.Dic[ast_symbol.Owner].Variable.ContainsKey(ast_symbol.Value)) return VariablesOwners.Dic[ast_symbol.Owner].Variable[ast_symbol.Value];
+                    else if (VariablesOwners.Dic["main"].Variable.ContainsKey(ast_symbol.Value)) return VariablesOwners.Dic["main"].Variable[ast_symbol.Value];
+                    else throw new Exception("Unknowned Variable");
+                    
                 }
                 else throw new Exception("Unknowed variable or function");
             }
