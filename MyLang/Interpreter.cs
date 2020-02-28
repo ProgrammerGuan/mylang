@@ -40,8 +40,7 @@ namespace MyLang
                 return Answer(exp);
             else if(ast is Ast.Block block)
             {
-                
-                foreach (Statement statement in block.StatementList)
+                foreach (Ast.Ast statement in block.StatementList)
                 {
                     if (statement is AssignStatement assign_statement)
                     {
@@ -94,7 +93,7 @@ namespace MyLang
                     }
                     else if(statement is IfStatement if_statement)
                     {
-                        foreach(KeyValuePair<Exp,Block> condition in if_statement.Condition_Mission)
+                        foreach(KeyValuePair<Exp, Block> condition in if_statement.Condition_Mission)
                         {
                             if(condition.Key is Compression compression)
                             {
@@ -187,7 +186,7 @@ namespace MyLang
             else return 0;
         }
 
-        private bool Compare(Compression compression)
+        public bool Compare(Compression compression)
         {
             var lhs = Run(compression.Lhs);
             var rhs = Run(compression.Rhs);

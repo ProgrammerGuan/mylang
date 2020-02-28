@@ -48,7 +48,7 @@ namespace MyLang
                 FunctionName = function_name;
             }
 
-            public void AddStatement(Statement statement)
+            public void AddStatement(Ast statement)
             {
                 StatementList.Add(statement);
             }
@@ -197,8 +197,8 @@ namespace MyLang
         /// </summary>
         public class ReturnStatement : Statement
         {
-            public readonly Ast Return_Value;
-            public ReturnStatement(Ast exp)
+            public readonly Exp Return_Value;
+            public ReturnStatement(Exp exp)
             {
                 Return_Value = exp;
             }
@@ -335,7 +335,7 @@ namespace MyLang
         /// <summary>
         /// キーワードを表すAST
         /// </summary>
-        public class Keyword : Statement
+        public class Keyword : Ast
         {
             public readonly string Value;
             public readonly KeywordType Type;

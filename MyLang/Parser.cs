@@ -121,7 +121,7 @@ namespace MyLang
         /// </summary>
         /// <param name="block"></param>
         /// <returns></returns>
-        private Ast.Statement Statement(Ast.Block block)
+        private Ast.Ast Statement(Ast.Block block)
         {
             var token = currentToken();
             if (token == null) return null;
