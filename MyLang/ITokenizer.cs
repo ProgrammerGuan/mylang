@@ -46,19 +46,52 @@ namespace MyLang
         Comma,  //  ,
         At, // "@"
     }
-
+    
     /// <summary>
     /// トークン
     /// </summary>
     public class Token
     {
+        static Dictionary<string, TokenType> TokenTypeMap = new Dictionary<string, TokenType>
+        {
+            { "EOF",TokenType.Terminate},
+            { "+",TokenType.Plus},
+            { "-",TokenType.Minus},
+            { "*",TokenType.Star},
+            { "/",TokenType.Slash},
+            { ">",TokenType.Larger},
+            { ">=",TokenType.LargerEqual},
+            { "<",TokenType.Smaller},
+            { "<=",TokenType.SmallerEqual},
+            { "!=",TokenType.NotEqual},
+            { "==",TokenType.DoubleEqual},
+            { "=",TokenType.Equal},
+            { ";",TokenType.End},
+            { "{",TokenType.LeftBlock},
+            { "}",TokenType.RightBlock},
+            { "(",TokenType.LeftBracket},
+            { ")",TokenType.RightBracket},
+            { "@",TokenType.At},
+            { ",",TokenType.Comma},
+            { "let",TokenType.Let},
+            { "print",TokenType.Print},
+            {"function",TokenType.Function },
+            { "return",TokenType.Return},
+            { "if",TokenType.If},
+            { "elif",TokenType.Elif},
+            { "else",TokenType.Else},
+
+        };
         public readonly TokenType Type;
         public readonly string Text;
 
-        public Token(TokenType type, string text)
+        public Token(string text)
         {
-            Type = type;
             Text = text;
+            float num;
+            if (float.TryParse(text, out num)) Type = TokenType.Number;
+            else if (TokenTypeMap.ContainsKey(Text)) Type = TokenTypeMap[text];
+            else Type = TokenType.Symbol;
         }
 
         public bool IsNumber => (Type == TokenType.Number);
