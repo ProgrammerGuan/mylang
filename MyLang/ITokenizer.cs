@@ -6,92 +6,20 @@ using System.Threading.Tasks;
 
 namespace MyLang
 {
-    /// <summary>
-    /// トークンの種類
-    /// </summary>
-    public enum TokenType
-    {
-        Terminate, // ソースの終わりを表す
-
-        Number, // 数値
-        Symbol, // 識別子
-
-        Plus, // "+"
-        Minus, // "-"
-        Star, // "*"
-        Slash, // "/"
-        Equal, // "="
-
-        //Compare Operator
-        Larger, //  ">"
-        Smaller,    // "<"
-        DoubleEqual,    // "=="
-        LargerEqual,    //  ">="
-        SmallerEqual,   //  "<="
-        NotEqual,   //  "!="
-        //keyword
-        Let,    //"let"
-        Print,  // "print"
-        Function,   //function
-        Return, // return
-        If, //if
-        Elif,   //  elif
-        Else,  //   else
-        // keyword symbol
-        End,    // ";"
-        LeftBlock,  // "{"
-        RightBlock, // "}"
-        LeftBracket,    // "("
-        RightBracket,   // ")"
-        Comma,  //  ,
-        At, // "@"
-    }
+    
     
     /// <summary>
     /// トークン
     /// </summary>
     public class Token
     {
-        static Dictionary<string, TokenType> TokenTypeMap = new Dictionary<string, TokenType>
-        {
-            { "EOF",TokenType.Terminate},
-            { "+",TokenType.Plus},
-            { "-",TokenType.Minus},
-            { "*",TokenType.Star},
-            { "/",TokenType.Slash},
-            { ">",TokenType.Larger},
-            { ">=",TokenType.LargerEqual},
-            { "<",TokenType.Smaller},
-            { "<=",TokenType.SmallerEqual},
-            { "!=",TokenType.NotEqual},
-            { "==",TokenType.DoubleEqual},
-            { "=",TokenType.Equal},
-            { ";",TokenType.End},
-            { "{",TokenType.LeftBlock},
-            { "}",TokenType.RightBlock},
-            { "(",TokenType.LeftBracket},
-            { ")",TokenType.RightBracket},
-            { "@",TokenType.At},
-            { ",",TokenType.Comma},
-            { "let",TokenType.Let},
-            { "print",TokenType.Print},
-            {"function",TokenType.Function },
-            { "return",TokenType.Return},
-            { "if",TokenType.If},
-            { "elif",TokenType.Elif},
-            { "else",TokenType.Else},
-
-        };
         public readonly TokenType Type;
         public readonly string Text;
 
-        public Token(string text)
+        public Token(string text , TokenType type)
         {
             Text = text;
-            float num;
-            if (float.TryParse(text, out num)) Type = TokenType.Number;
-            else if (TokenTypeMap.ContainsKey(Text)) Type = TokenTypeMap[text];
-            else Type = TokenType.Symbol;
+            Type = type;
         }
 
         public bool IsNumber => (Type == TokenType.Number);
