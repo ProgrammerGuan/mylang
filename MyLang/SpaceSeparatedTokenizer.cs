@@ -22,7 +22,7 @@ namespace MyLang
     /// </summary>
     class SpaceSeparatedTokenizer : ITokenizer { 
 
-        private readonly Regex split_word = new Regex(@"(\s+|\+|\-|\*|\/|;|\(|\)|\{|\}|\>=|\<=|==|!=|\>|\<|!|=)");
+        private readonly Regex split_word = new Regex(@"(\s+|\+|\-|\*|\/|;|\(|\)|\{|\}|\>=|\<=|==|!=|\>|\<|!|=|,)");
         public SpaceSeparatedTokenizer()
         {
         }
