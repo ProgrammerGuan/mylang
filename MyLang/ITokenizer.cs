@@ -38,7 +38,7 @@ namespace MyLang
         public bool IsKeyWord => (Type == TokenType.Let || Type==TokenType.Print || Type==TokenType.Function 
             || Type == TokenType.Return || Type==TokenType.If || Type==TokenType.Elif || Type==TokenType.Else
             || Type==TokenType.End || Type == TokenType.LeftBlock || Type == TokenType.RightBlock
-            || Type==TokenType.LeftBracket || Type==TokenType.RightBracket );
+            || Type==TokenType.LeftBracket || Type==TokenType.RightBracket || Type==TokenType.Equal );
         
     }
 

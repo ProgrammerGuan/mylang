@@ -136,9 +136,9 @@ namespace MyLang
             }
         }
         /// <summary>
-        /// Equal Statementを表すAST
+        /// Equalを表すAST
         /// </summary>
-        public class EqualStatement : Statement
+        public class EqualStatement : Exp
         {
             public readonly Symbol Lhs;
             public readonly Ast Rhs;

@@ -248,6 +248,7 @@ namespace MyLang
             var exp = Exp1(block);
             if (exp == null) throw new Exception("None expression");
             var end_sign = Statement_Keyword();
+            if(exp is Ast.Symbol lhs && end_sign.Type==Ast.KeywordType.Equal)
             if (end_sign.Type != Ast.KeywordType.End) throw new Exception("need ';' after statement");
             return new Ast.ExpresstionStatement(exp);
         }
@@ -376,7 +377,8 @@ namespace MyLang
                     progress();
                     return new Ast.LocateSymbol(Convert.ToSingle(index.Text), block.FunctionName);
                 default:
-                    throw new Exception(string.Format("Invalid input {0}", token.Text));
+                    pos_ -= 1;
+                    return null;//(string.Format("Invalid input {0}", token.Text));
             }
         }
 
@@ -405,7 +407,7 @@ namespace MyLang
 
         private List<Ast.Exp> Parameters(List<Ast.Exp> parameters, Ast.Block block)
         {
-            var parameter = Exp_Value(block);
+            var parameter = Exp1(block);
             if (parameter == null) return parameters;
             parameters.Add(parameter);
             return Parameter_rest(parameters, block);

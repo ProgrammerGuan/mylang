@@ -41,7 +41,7 @@ class Program
                     break;
                 case "-c":
                 case "--coding":
-                Console.WriteLine("----------------------Programming Start-----------------------");
+                //Console.WriteLine("----------------------Programming Start-----------------------");
                     isCodingMode = true;
                     break;
                 default:
@@ -56,7 +56,7 @@ class Program
             var codeLine = Console.ReadLine();
             if (codeLine == "-e" || codeLine == "-execution")
             {
-                Console.WriteLine("----------------------Programming Answer----------------------");
+                //Console.WriteLine("----------------------Programming Answer----------------------");
                 Execute_Program(codeList);
                 exit(0);
             }
@@ -160,9 +160,9 @@ Example:
         var codes = codeList.ToArray().ToString();
         // Tokenize を行う
         var tokens = tokenizer.Tokenize(string.Join(" ", codeList));
-        Console.WriteLine(string.Join(" ", tokens.Select(t => t.Text).ToArray()));
+        //Console.WriteLine(string.Join(" ", tokens.Select(t => t.Text).ToArray()));
         var ast = parser.ProgramingParse(tokens);
-        Console.WriteLine(new MyLang.Ast.AstDisplayer().BuildString(ast, false));
+        //Console.WriteLine(new MyLang.Ast.AstDisplayer().BuildString(ast, false));
         interpreter.Run(ast);
 
     }

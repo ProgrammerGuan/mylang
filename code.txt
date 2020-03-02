@@ -1,0 +1,12 @@
+
+let a = 99;
+if( a < 99 ){
+let v = 445;
+let s = 990;
+print v;
+}else{
+let af = 8555;
+let aa = 5451;
+print af;
+}
+-e

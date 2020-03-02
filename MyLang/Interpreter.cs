@@ -64,6 +64,7 @@ namespace MyLang
                             {
                                 if (para is Number num) para_value_list.Add(num.Value);
                                 else if (para is Symbol sym) para_value_list.Add(VariablesOwners.Dic[do_function.Owner].Variable[sym.Value]);
+                                else if (para is BinOp op) para_value_list.Add(Run(op));
                                 else throw new Exception("unknowed something");
                             }
                             Enumerable.Range(0, do_function.Parameters.Count).ToList().ForEach(i =>
@@ -195,23 +196,17 @@ namespace MyLang
             switch (compression.CompareOp)
             {
                 case CompareOpType.Larger:
-                    if (lhs > rhs) return true;
-                    else return false;
+                    return (lhs > rhs ? true : false);
                 case CompareOpType.Smaller:
-                    if (lhs < rhs) return true;
-                    else return false;
+                    return (lhs < rhs ? true : false);
                 case CompareOpType.DoubleEqual:
-                    if (lhs == rhs) return true;
-                    else return false;
+                    return (lhs == rhs ? true : false);
                 case CompareOpType.LargerEqual:
-                    if (lhs >= rhs) return true;
-                    else return false;
+                    return (lhs >= rhs ? true : false);
                 case CompareOpType.SmallerEqual:
-                    if (lhs <= rhs) return true;
-                    else return false;
+                    return (lhs <= rhs ? true : false);
                 case CompareOpType.NotEqual:
-                    if (lhs != rhs) return true;
-                    else return false;
+                    return (lhs != rhs ? true : false);
                 default:
                     throw new Exception("Error Compare");
             }
