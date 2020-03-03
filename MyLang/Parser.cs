@@ -220,7 +220,9 @@ namespace MyLang
 
         private Ast.FunctionStatement FunctionStatement(Ast.Block block)
         {
-            var function_name = Exp1(block);
+            var token = currentToken();
+            progress();
+            var function_name = VariableOrFunctionCall(token,block,true);
             if (function_name is Ast.Symbol name)
             {
                 var left_block = Statement_Keyword();
@@ -229,8 +231,16 @@ namespace MyLang
                 var function_statement = new Ast.FunctionStatement(name, Block(function_block));
                 var right_block = Statement_Keyword();
                 if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need a '}' ");
-                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(function_block.FunctionName)) throw new Exception("Existed Function name");
-                VariablesOwners.Dic[block.FunctionName].Function.Add(function_block.FunctionName, null);
+                return function_statement;
+            }
+            else if(function_name is Ast.FunctionCall function_call)
+            {
+                var left_block = Statement_Keyword();
+                if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need a '{' ");
+                var function_block = new Ast.Block(function_call.FunctionName.Value);
+                var function_statement = new Ast.FunctionStatement(function_call.FunctionName, Block(function_block));
+                var right_block = Statement_Keyword();
+                if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need a '}' ");
                 return function_statement;
             }
             else throw new Exception("Invalid function name");
@@ -370,7 +380,7 @@ namespace MyLang
                 case TokenType.Number:
                     return new Ast.Number(Convert.ToSingle(token.Text));
                 case TokenType.Symbol:
-                    return VariableOrFunctionCall(token,block);
+                    return VariableOrFunctionCall(token,block,false);
                 case TokenType.At:
                     var index = currentToken();
                     if (!index.IsNumber) throw new Exception("Index must be number");
@@ -382,14 +392,20 @@ namespace MyLang
             }
         }
 
-        private Ast.Exp VariableOrFunctionCall(Token token, Ast.Block block)
+        private Ast.Exp VariableOrFunctionCall(Token token, Ast.Block block,bool make_function)
         {
             var next_token = currentToken();
-            if (next_token.Type != TokenType.LeftBracket) return new Ast.Symbol(token.Text, block.FunctionName);
-            return FunctionCall(token, block);
+            if (next_token.Type == TokenType.LeftBracket) return FunctionCall(token, block, make_function);
+            if (make_function)
+            {
+                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(token.Text)) throw new Exception("Existed Function name");
+                VariablesOwners.Dic[block.FunctionName].Function.Add(token.Text, null);
+            }
+            return new Ast.Symbol(token.Text, block.FunctionName);
+            
         }
 
-        private Ast.FunctionCall FunctionCall(Token function, Ast.Block block)
+        private Ast.FunctionCall FunctionCall(Token function, Ast.Block block,bool make_function)
         {
             var left_bracket = Statement_Keyword();
             if (left_bracket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need a '(' ");
@@ -397,10 +413,20 @@ namespace MyLang
             Parameters(parameters, block);
             var right_brack = Statement_Keyword();
             if (right_brack.Type != Ast.KeywordType.RightBracket) throw new Exception("Need a ')' ");
-            foreach(Ast.Exp par in parameters)
+            if (make_function)
             {
-                if (!VariablesOwners.Dic[function.Text].Variable.ContainsKey("@" + par.ToString()))
-                    VariablesOwners.Dic[function.Text].Variable.Add("@" + par.ToString(), 0);
+                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(function.Text)) throw new Exception("Existed Function name");
+                VariablesOwners.Dic[block.FunctionName].Function.Add(function.Text, null);
+                VariablesOwners.Dic.Add(function.Text, new VariablesOwners.UserDictionary());
+                foreach(Ast.Exp par in parameters)
+                {
+                    if (par is Ast.Symbol function_variable)
+                    {
+                        VariablesOwners.Dic[function.Text].Variable.Add(function_variable.Value, 0);
+                        VariablesOwners.Dic[function.Text].ParameterList.Add(function_variable.Value);
+                    }
+                    else throw new Exception("unknowed variable");
+                }
             }
             return new Ast.FunctionCall(function.Text, block.FunctionName, parameters);
         }

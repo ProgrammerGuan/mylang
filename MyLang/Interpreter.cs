@@ -16,10 +16,12 @@ namespace MyLang
         {
             public Dictionary<string, float> Variable ;
             public Dictionary<string, Block> Function ;
+            public List<string> ParameterList;
             public UserDictionary()
             {
                 Variable = new Dictionary<string, float> { };
                 Function = new Dictionary<string, Block> { };
+                ParameterList = new List<string>();
             }
         }
     }
@@ -68,7 +70,7 @@ namespace MyLang
                                 else throw new Exception("unknowed something");
                             }
                             Enumerable.Range(0, do_function.Parameters.Count).ToList().ForEach(i =>
-                                VariablesOwners.Dic[do_function.FunctionName.Value].Variable["@" + i.ToString()] = para_value_list[i]
+                                VariablesOwners.Dic[do_function.FunctionName.Value].Variable[VariablesOwners.Dic[do_function.FunctionName.Value].ParameterList[i]] = para_value_list[i]
                             );
                             Console.WriteLine(Run(VariablesOwners.Dic[block.FunctionName].Function[do_function.FunctionName.Value]));
                         }
