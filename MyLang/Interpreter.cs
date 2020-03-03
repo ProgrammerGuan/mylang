@@ -33,14 +33,15 @@ namespace MyLang
 
     public class Interpreter
     {
-        WhileReader WhileReader = new WhileReader();
-        IfReader IfReader = new IfReader();
-        ReturnReader ReturnReader = new ReturnReader();
-        ExpressionReader ExpressionReader = new ExpressionReader();
-        FunctionReader FunctionReader = new FunctionReader();
-        PrintReader PrintReader = new PrintReader();
-        AssignReader AssignReader = new AssignReader();
-        Counter ReadCounter = new Counter();
+        public ForReader ForReader = new ForReader();
+        public WhileReader WhileReader = new WhileReader();
+        public IfReader IfReader = new IfReader();
+        public ReturnReader ReturnReader = new ReturnReader();
+        public ExpressionReader ExpressionReader = new ExpressionReader();
+        public FunctionReader FunctionReader = new FunctionReader();
+        public PrintReader PrintReader = new PrintReader();
+        public AssignReader AssignReader = new AssignReader();
+        public Counter ReadCounter = new Counter();
         public Interpreter()
         {
             ReadCounter.SetNextReader(AssignReader);
@@ -50,6 +51,7 @@ namespace MyLang
             ExpressionReader.SetNextReader(ReturnReader);
             ReturnReader.SetNextReader(IfReader);
             IfReader.SetNextReader(WhileReader);
+            WhileReader.SetNextReader(ForReader);
         }
 
         public float Run(Ast.Ast ast)
@@ -65,7 +67,6 @@ namespace MyLang
                     if (run_ans != ReaderPassword.Password) return run_ans;
                 }
                 return 0;
-
             }
             else 
                 throw new Exception("Havn't got any block");

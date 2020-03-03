@@ -36,6 +36,7 @@ namespace MyLang
             {TokenType.Elif,Ast.KeywordType.Elif },
             {TokenType.Else,Ast.KeywordType.Else },
             {TokenType.While,Ast.KeywordType.While },
+            {TokenType.For,Ast.KeywordType.Function }
         };
 
         static Dictionary<TokenType, Ast.CompareOpType> CompareOpMap = new Dictionary<TokenType, Ast.CompareOpType>
@@ -124,11 +125,13 @@ namespace MyLang
         /// <returns></returns>
         private Ast.Ast Statement(Ast.Block block)
         {
+
             var token = currentToken();
             if (token == null) return null;
             if (token.IsKeyWord)
             {
                 progress();
+
 
                 switch (token.Type)
                 {
@@ -149,6 +152,8 @@ namespace MyLang
                         return IfStatement(block);
                     case TokenType.While:
                         return WhileStatement(block);
+                    case TokenType.For:
+                        return ForStatement(block);
                     default:
                         throw new Exception("Unknowed Keyword");
                 }
@@ -309,6 +314,23 @@ namespace MyLang
             var right_block = Statement_Keyword();
             if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
             return new Ast.WhileStatement(condition, while_block);
+        }
+
+        private Ast.ForStatement ForStatement(Ast.Block block)
+        {
+            var left_barcket = Statement_Keyword();
+            if (left_barcket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need '(' ");
+            var initialize = ExpressionStatement(block);
+            var condition = ExpressionStatement(block);
+            var doItEveryTime = Exp(block);
+            var right_barcket = Statement_Keyword();
+            if (right_barcket.Type != Ast.KeywordType.RightBracket) throw new Exception("Need ')' ");
+            var left_block = Statement_Keyword();
+            if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need '{' ");
+            var for_block = Block(new Ast.Block("For" + Ast.ForStatement.ForCount++));
+            var right_block = Statement_Keyword();
+            if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
+            return new Ast.ForStatement(initialize, condition, doItEveryTime, for_block);
         }
 
         private Ast.Exp Exp(Ast.Block block)

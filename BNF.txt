@@ -17,6 +17,8 @@ expression-statement ::= exp ";"
 
 while-statement ::= "while" "(" exp ")" "{" block "}"
 
+for-statement ::= "for" "(" expression-statement expression-statement exp ")" "{" block "}"
+
 if-statement ::= "if" "(" exp ")" "{" block "}" elif-statement else-statement
 elif-statement ::= ε | "elif" "(" exp ")" "{" block "}" elif-statement                
 else-statement ::= ε | "else" "{" block "}"

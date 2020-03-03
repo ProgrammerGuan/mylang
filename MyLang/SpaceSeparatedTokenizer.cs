@@ -47,6 +47,7 @@ namespace MyLang
         Elif,   //  elif
         Else,  //   else
         While,  // while
+        For,    // for
         // keyword symbol
         End,    // ";"
         LeftBlock,  // "{"
@@ -91,6 +92,7 @@ namespace MyLang
             { "elif",TokenType.Elif},
             { "else",TokenType.Else},
             {"while",TokenType.While },
+            {"for",TokenType.For },
         };
         private readonly Regex split_word = new Regex(@"(\s+|\+|\-|\*|\/|;|\(|\)|\{|\}|\>=|\<=|==|!=|\>|\<|!|=|,)");
         public SpaceSeparatedTokenizer()

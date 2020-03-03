@@ -239,6 +239,26 @@ namespace MyLang
                 return Tuple.Create("While", new Ast[] { Condition,Mission });
             }
         }
+
+        public class ForStatement : Statement
+        {
+            public static int ForCount;
+            public readonly ExpresstionStatement Initialize;
+            public readonly ExpresstionStatement Condition;
+            public readonly Exp DoItEverytime;
+            public readonly Block Mission;
+            public ForStatement(ExpresstionStatement initialize, ExpresstionStatement condition, Exp doItEveryTime,Block mission)
+            {
+                Initialize = initialize;
+                Condition = condition;
+                DoItEverytime = doItEveryTime;
+                Mission = mission;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("For", new Ast[] { Initialize,Condition,DoItEverytime, Mission });
+            }
+        }
         /// <summary>
         /// 数値を表すAST
         /// </summary>

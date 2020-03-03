@@ -185,4 +185,43 @@ namespace MyLang
             else return NextReader.RunCode(interpreter,block,statement);
         }
     }
+
+    public class ForReader : StatementReader
+    {
+        public override float RunCode(Interpreter interpreter, Block block, Statement statement)
+        {
+            if (statement is ForStatement for_statement)
+            {
+                if (for_statement.Initialize is ExpresstionStatement initial_exp)
+                    interpreter.ExpressionReader.RunCode(interpreter, block, initial_exp);
+                else throw new Exception("Invailed initial exp");
+                if (for_statement.Condition.Expression is Compression compression)
+                {
+                    while (interpreter.Compare(compression))
+                    {
+                        interpreter.Run(for_statement.Mission);
+                        interpreter.Run(for_statement.DoItEverytime);
+                    }
+                }
+                else if (for_statement.Condition.Expression is Number number)
+                {
+                    while (number.Value != 0)
+                    {
+                        interpreter.Run(for_statement.Mission);
+                        interpreter.Run(for_statement.DoItEverytime);
+                    }
+                }
+                else if (for_statement.Condition.Expression is Symbol symbol)
+                {
+                    while (VariablesOwners.Dic[block.FunctionName].Variable[symbol.Value] != 0)
+                    {
+                        interpreter.Run(for_statement.Mission);
+                        interpreter.Run(for_statement.DoItEverytime);
+                    }
+                }
+                return ReaderPassword.Password;
+            }
+            else return NextReader.RunCode(interpreter, block, statement);
+        }
+    }
 }
