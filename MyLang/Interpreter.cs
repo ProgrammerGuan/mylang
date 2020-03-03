@@ -113,7 +113,7 @@ namespace MyLang
                     else throw new Exception("unknowed something");
                 }
                 Enumerable.Range(0, function_call.Parameters.Count).ToList().ForEach(i =>
-                    VariablesOwners.Dic[function_call.FunctionName.Value].Variable["@" + i.ToString()] = para_value_list[i]
+                    VariablesOwners.Dic[function_call.FunctionName.Value].Variable[VariablesOwners.Dic[function_call.FunctionName.Value].ParameterList[i]] = para_value_list[i]
                 );
                 return Run(VariablesOwners.Dic[function_call.Owner].Function[function_call.FunctionName.Value]);
             }

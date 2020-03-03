@@ -62,6 +62,10 @@ print leta;
 -e
 ","1"],
 ["
+print 3+5;
+-e
+","8"],
+["
 let a=1+4;
 if(a>3){
     print a;
