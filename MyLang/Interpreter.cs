@@ -33,6 +33,7 @@ namespace MyLang
 
     public class Interpreter
     {
+        WhileReader WhileReader = new WhileReader();
         IfReader IfReader = new IfReader();
         ReturnReader ReturnReader = new ReturnReader();
         ExpressionReader ExpressionReader = new ExpressionReader();
@@ -48,6 +49,7 @@ namespace MyLang
             FunctionReader.SetNextReader(ExpressionReader);
             ExpressionReader.SetNextReader(ReturnReader);
             ReturnReader.SetNextReader(IfReader);
+            IfReader.SetNextReader(WhileReader);
         }
 
         public float Run(Ast.Ast ast)
@@ -123,6 +125,16 @@ namespace MyLang
                 if (VariablesOwners.Dic[locate.Owner].Variable.ContainsKey(locate.value_string))
                     return VariablesOwners.Dic[locate.Owner].Variable[locate.value_string];
                 else throw new Exception("Error Parameter");
+            }
+            else if(exp is EqualExp equalExp)
+            {
+                if (VariablesOwners.Dic[equalExp.Lhs.Owner].Variable.ContainsKey(equalExp.Lhs.Value))
+                    VariablesOwners.Dic[equalExp.Lhs.Owner].Variable[equalExp.Lhs.Value] = Run(equalExp.Rhs);
+                else if (VariablesOwners.Dic["main"].Variable.ContainsKey(equalExp.Lhs.Value))
+                    VariablesOwners.Dic["main"].Variable[equalExp.Lhs.Value] = Run(equalExp.Rhs);
+                else
+                    throw new Exception("Unknowed variable");
+                return 0;
             }
             else return 0;
         }

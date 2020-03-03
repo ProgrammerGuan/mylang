@@ -35,6 +35,7 @@ namespace MyLang
             {TokenType.If,Ast.KeywordType.If },
             {TokenType.Elif,Ast.KeywordType.Elif },
             {TokenType.Else,Ast.KeywordType.Else },
+            {TokenType.While,Ast.KeywordType.While },
         };
 
         static Dictionary<TokenType, Ast.CompareOpType> CompareOpMap = new Dictionary<TokenType, Ast.CompareOpType>
@@ -146,6 +147,8 @@ namespace MyLang
                         return null;
                     case TokenType.If:
                         return IfStatement(block);
+                    case TokenType.While:
+                        return WhileStatement(block);
                     default:
                         throw new Exception("Unknowed Keyword");
                 }
@@ -255,10 +258,9 @@ namespace MyLang
 
         private Ast.ExpresstionStatement ExpressionStatement(Ast.Block block)
         {
-            var exp = Exp1(block);
+            var exp = Exp(block);
             if (exp == null) throw new Exception("None expression");
             var end_sign = Statement_Keyword();
-            if(exp is Ast.Symbol lhs && end_sign.Type==Ast.KeywordType.Equal)
             if (end_sign.Type != Ast.KeywordType.End) throw new Exception("need ';' after statement");
             return new Ast.ExpresstionStatement(exp);
         }
@@ -314,11 +316,36 @@ namespace MyLang
             return ifStatement;
         }
 
+        private Ast.WhileStatement WhileStatement(Ast.Block block)
+        {
+            var left_barcket = Statement_Keyword();
+            if (left_barcket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need '(' ");
+            var condition = Exp(block);
+            var right_barcket = Statement_Keyword();
+            if (right_barcket.Type != Ast.KeywordType.RightBracket) throw new Exception("Need '(' ");
+            var left_block = Statement_Keyword();
+            if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need '{' ");
+            var while_block = Block(new Ast.Block("while" + Ast.WhileStatement.WhileCount++));
+            var right_block = Statement_Keyword();
+            if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
+            return new Ast.WhileStatement(condition, while_block);
+        }
+
         private Ast.Exp Exp(Ast.Block block)
         {
             var lhs = Exp1(block);
             if (lhs == null) return null;
             var compareOp = currentToken();
+            if(compareOp.Type == TokenType.Equal)
+            {
+                progress();
+                var equal_rhs = Exp(block);
+                if (lhs is Ast.Symbol lhs_sym)
+                {
+                    return new Ast.EqualExp(lhs_sym, equal_rhs);
+                }
+                else throw new Exception("Unknowed symbol");
+            }
             if (!compareOp.IsCompareOperator) return lhs;
             progress();
             var rhs = Exp1(block);

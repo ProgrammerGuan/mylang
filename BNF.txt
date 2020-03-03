@@ -15,11 +15,13 @@ function-statement ::= "function" symbol "{" block "}"
 
 expression-statement ::= exp ";"
 
+while-statement ::= "while" "(" exp ")" "{" block "}"
+
 if-statement ::= "if" "(" exp ")" "{" block "}" elif-statement else-statement
 elif-statement ::= ε | "elif" "(" exp ")" "{" block "}" elif-statement                
 else-statement ::= ε | "else" "{" block "}"
 
-exp ::= exp1 | exp_compression
+exp ::= exp1 | exp_compression | exp_equal
 
 exp1 ::= exp2 exp1_rest
 exp1_rest ::= ε | exp1_op exp2 exp1_rest
@@ -29,6 +31,8 @@ exp2_rest ::= ε | exp2_op exp_value exp2_rest
 
 exp_compression ::= exp compression_op exp
 compression_op ::= ">" | "<" | "==" | ">=" | "<=" | "!="
+
+exp_equal ::= symbol "=" exp ";"
 
 exp_value = number | symbol | function-call | locate-symbol
 

@@ -36,7 +36,7 @@ namespace MyLang
         public bool IsCompareOperator => (Type == TokenType.Larger || Type == TokenType.Smaller || Type == TokenType.DoubleEqual
             || Type == TokenType.LargerEqual || Type == TokenType.SmallerEqual || Type == TokenType.NotEqual);
         public bool IsKeyWord => (Type == TokenType.Let || Type==TokenType.Print || Type==TokenType.Function 
-            || Type == TokenType.Return || Type==TokenType.If || Type==TokenType.Elif || Type==TokenType.Else
+            || Type == TokenType.Return || Type==TokenType.If || Type==TokenType.Elif || Type==TokenType.Else || Type==TokenType.While
             || Type==TokenType.End || Type == TokenType.LeftBlock || Type == TokenType.RightBlock
             || Type==TokenType.LeftBracket || Type==TokenType.RightBracket || Type==TokenType.Equal );
         

@@ -85,7 +85,7 @@ class Program
         }
 
         // Parse を行う
-        var ast = parser.Parse(tokens);
+        var ast = parser.ProgramingParse(tokens);
 
         if( parseOnly)
         {
@@ -97,7 +97,7 @@ class Program
         var result = interpreter.Run(ast);
 
         // 答えを出力する
-        Console.WriteLine(result);
+        //Console.WriteLine(result);
 
         exit(0);
     }

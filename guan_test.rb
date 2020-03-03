@@ -5,9 +5,9 @@ def main_test(test_codes,mode)
     if mode!="-c"
         test_codes.length.times do |i|
             o,s = Open3.capture3($lang_exe,mode,test_codes[i][0])
-            if(o==test_codes[i][1]+"\n") 
+            if(o==test_codes[i][1]+"\n" || o==test_codes[i][1]) 
                 print "."
-            else 
+            else
                 puts "\noutput : "+ o + "expect : " + test_codes[i][1]
             end
             
@@ -29,27 +29,28 @@ end
 
 def tokenize_test
     test_codes=[
-        ["1+1","1 + 1 EOF"],
-        ["8/4 - 1","8 / 4 - 1 EOF"],
-        ["1+2*3","1 + 2 * 3 EOF"],
+        ["1+1;","1 + 1 ; EOF"],
+        ["8/4 - 1 ; ","8 / 4 - 1 ; EOF"],
+        ["1+2*3;","1 + 2 * 3 ; EOF"],
     ]
     main_test(test_codes,"-t")
 end
 
 def parser_test
     test_codes=[
-        ["1+2","Add( 1 2 )"],
-        ["8/4 - 1","Sub( Divide( 8 4 ) 1 )"],
-        ["1+2*3","Add( 1 Multiply( 2 3 ) )"],
+        ["1+2;","Block( Expression( Add( 1 2 ) ) )"],
+        ["8/4 - 1;","Block( Expression( Sub( Divide( 8 4 ) 1 ) ) )"],
+        ["1+2*3;","Block( Expression( Add( 1 Multiply( 2 3 ) ) ) )"],
     ]
     main_test(test_codes,"-p")
 end
 
 def interpreter_test
     test_codes=[
-        ["1+2","3"],
-        ["1-1","0"],
-        ["1+2*3","7"],
+        ["print 1+2;","3"],
+        ["print 1-1;","0"],
+        ["print 1+2*3;","7"],
+        ["1+34;",""]
     ]
     main_test(test_codes,"")
 end
@@ -104,7 +105,22 @@ function Sub(a,b){
 }
 print 5 + Sub(4,2);
 -e
-","7"]
+","7"],
+["
+let a=0;
+while(a<8){
+    print a;
+    a=a+1;
+}
+-e
+","0
+1
+2
+3
+4
+5
+6
+7"]
     ]
     main_test(test_codes,"-c")
 end

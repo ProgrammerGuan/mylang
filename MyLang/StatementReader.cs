@@ -152,4 +152,37 @@ namespace MyLang
             else return NextReader.RunCode(interpreter, block, statement);
         }
     }
+
+    public class WhileReader : StatementReader
+    {
+        public override float RunCode(Interpreter interpreter, Block block, Statement statement)
+        {
+            if (statement is WhileStatement while_statement)
+            {
+                if (while_statement.Condition is Compression compression)
+                {
+                    while (interpreter.Compare(compression))
+                    {
+                        interpreter.Run(while_statement.Mission);
+                    }
+                }
+                else if (while_statement.Condition is Number number)
+                {
+                    while (number.Value != 0)
+                    {
+                        interpreter.Run(while_statement.Mission);
+                    }
+                }
+                else if (while_statement.Condition is Symbol symbol)
+                {
+                    while (VariablesOwners.Dic[block.FunctionName].Variable[symbol.Value] != 0)
+                    {
+                        interpreter.Run(while_statement.Mission);
+                    }
+                }
+                return ReaderPassword.Password;
+            }
+            else return NextReader.RunCode(interpreter,block,statement);
+        }
+    }
 }

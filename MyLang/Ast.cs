@@ -81,6 +81,7 @@ namespace MyLang
             If, //if
             Elif,//  elif
             Else,   //  else
+            While,
             Leftblock,  //  {
             Rightblock, //  }
             LeftBracket,    //  (
@@ -246,6 +247,22 @@ namespace MyLang
                 return Tuple.Create("If", ReturnList.ToArray());
             }
         }
+
+        public class WhileStatement : Statement
+        {
+            public readonly Exp Condition;
+            public readonly Block Mission;
+            public static int WhileCount;
+            public WhileStatement(Exp condition, Block mission)
+            {
+                Condition = condition;
+                Mission = mission;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                return Tuple.Create("While", new Ast[] { Condition,Mission });
+            }
+        }
         /// <summary>
         /// 数値を表すAST
         /// </summary>
@@ -331,7 +348,24 @@ namespace MyLang
                 return Tuple.Create(CompareOp.ToString(), new Ast[] { Lhs, Rhs });
             }
         }
-        
+
+        public class EqualExp : Exp
+        {
+            public readonly Symbol Lhs;
+            public readonly Ast Rhs;
+            public EqualExp(Symbol lhs,Ast rhs)
+            {
+                Lhs = lhs;
+                Rhs = rhs;
+            }
+            public override Tuple<string, Ast[]> GetDisplayInfo()
+            {
+                if(Rhs is FunctionCall functionCall)
+                    return Tuple.Create("Equal", new Ast[] { Lhs, functionCall.FunctionName });
+                else return Tuple.Create("Equal", new Ast[] { Lhs, Rhs });
+            }
+        }
+
         /// <summary>
         /// キーワードを表すAST
         /// </summary>
