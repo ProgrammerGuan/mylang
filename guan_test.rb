@@ -61,15 +61,6 @@ let leta=1;
 print leta;        
 -e
 ","1"],
-
-["
-function Add{
-    return @0+@1;
-}
-print Add(3,5);
--e
-","8"],
-
 ["
 let a=1+4;
 if(a>3){
@@ -80,27 +71,6 @@ else{
 }
 -e
 ","5"],
-["
-function add{
-    let a = @0 + @1;
-    print @0 - @1;
-    return @0 * @1;
-}
-function a{
-    let aa = 1+5;
-    print 600;
-}
-print add(3,4,5);
-print add(1+9-3,9*9);
-print a();
--e
-",
-"-1
-12
--74
-567
-600
-0"],
 ["
 let a = 99;
 if( a < 99 ){
@@ -114,7 +84,16 @@ print af;
 }
 -e
 ",
-"8555"]
+"8555"],
+["
+
+function add(a,b){
+    let c = a+b;
+    return c;
+}
+print add(1,5);
+-e
+","6"],
     ]
     main_test(test_codes,"-c")
 end
