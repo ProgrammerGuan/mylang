@@ -136,31 +136,7 @@ namespace MyLang
                 return Tuple.Create("Assign", new Ast[] { Lhs,Rhs});
             }
         }
-        /// <summary>
-        /// Equalを表すAST
-        /// </summary>
-        public class EqualStatement : Exp
-        {
-            public readonly Symbol Lhs;
-            public readonly Ast Rhs;
-            public EqualStatement(Symbol lhs,Ast rhs)
-            {
-                Lhs = lhs;
-                Rhs = rhs;
-            }
-            public override Tuple<string, Ast[]> GetDisplayInfo()
-            {
-                if (Rhs is FunctionCall function)
-                {
-                    return Tuple.Create("Equal", new Ast[] { Lhs, function.FunctionName });
-                }
-                else if (Rhs is Exp exp)
-                {
-                    return Tuple.Create("Equal", new Ast[] { Lhs, exp });
-                }
-                else throw new Exception("Unknowed equal right hand side statement");
-            }
-        }
+        
         /// <summary>
         /// Print Statementを表すAST
         /// </summary>

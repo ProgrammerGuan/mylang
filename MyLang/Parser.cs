@@ -192,26 +192,6 @@ namespace MyLang
             else throw new Exception("Error Left Hand Side Symbol while assigning");
         }
 
-        private Ast.EqualStatement EqualStatement(Ast.Symbol lhs,Ast.Block block)
-        {
-            Ast.Ast rhs;
-            var rhs_exp = Exp1(block);
-            if(rhs_exp !=null)
-            {
-                rhs = rhs_exp;
-            }
-            else
-            {
-                var rhs_statement = Statement(block);
-                if (rhs_statement == null) throw new Exception("Equal statement havn't got right hand side");
-                else rhs = rhs_exp;
-            }
-            var end_sign = Statement_Keyword();
-            if (end_sign.Type == Ast.KeywordType.End)
-                return new Ast.EqualStatement(lhs, rhs);
-            else throw new Exception("need ';' after statement");
-        }
-
         private Ast.PrintStatement PrintStatement(Ast.Block block)
         {
             var exp = Exp1(block);
