@@ -132,18 +132,18 @@ for(a=3;a<8;a=a+1){
 5
 6
 7"],
-["
-function Bigger(a,b){
-    if(a>b){
-        print a;
-    }
-    else{
-        print b;
-    }
-}
-Bigger(5,6);
--e
-","6"]
+# ["
+# function Bigger(a,b){
+#     if(a>b){
+#         print a;
+#     }
+#     else{
+#         print b;
+#     }
+# }
+# Bigger(5,6);
+# -e
+# ","6"]
     ]
     main_test(test_codes,"-c")
 end
