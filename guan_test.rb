@@ -94,6 +94,13 @@ function add(a,b){
 print add(1,5);
 -e
 ","6"],
+["
+function Sub(a,b){
+    return a - b;
+}
+print 5 + Sub(4,2);
+-e
+","7"]
     ]
     main_test(test_codes,"-c")
 end
