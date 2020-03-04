@@ -41,7 +41,6 @@ class Program
                     break;
                 case "-c":
                 case "--coding":
-                //Console.WriteLine("----------------------Programming Start-----------------------");
                     isCodingMode = true;
                     break;
                 default:
@@ -56,7 +55,6 @@ class Program
             var codeLine = Console.ReadLine();
             if (codeLine == "-e" || codeLine == "-execution")
             {
-                //Console.WriteLine("----------------------Programming Answer----------------------");
                 Execute_Program(codeList);
                 exit(0);
             }

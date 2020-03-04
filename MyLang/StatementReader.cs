@@ -31,8 +31,9 @@ namespace MyLang
         {
             if (statement is Ast.AssignStatement assign_statement)
             {
-                if (!VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(assign_statement.Lhs.Value)) throw new Exception("Unknowed variable");
-                VariablesOwners.Dic[block.FunctionName].Variable[assign_statement.Lhs.Value] = interpreter.Run(assign_statement.Rhs);
+                if (VariablesWareHouse.Stacks.Count > 0)
+                    VariablesWareHouse.Stacks.Peek().SymboToValue.Add(assign_statement.Lhs.Value, interpreter.Run(assign_statement.Rhs));
+                else VariablesWareHouse.Global.Add(assign_statement.Lhs.Value, assign_statement.Rhs);
                 return ReaderPassword.Password;
             }
             else return NextReader.RunCode(interpreter, block, statement);
@@ -47,27 +48,9 @@ namespace MyLang
             {
                 var parameter = print_statement.Parameter;
                 if (parameter is Symbol symbol_parameter)
-                {
-                    if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(symbol_parameter.Value)) Console.WriteLine(VariablesOwners.Dic[block.FunctionName].Variable[symbol_parameter.Value]);
-                    else if (VariablesOwners.Dic["main"].Variable.ContainsKey(symbol_parameter.Value)) Console.WriteLine(VariablesOwners.Dic["main"].Variable[symbol_parameter.Value]);
-                    else throw new Exception(string.Format("Undefinded variable {0}", symbol_parameter.Value));
-                }
+                    Console.WriteLine(interpreter.Run(symbol_parameter));
                 else if (parameter is FunctionCall do_function)
-                {
-                    if (!VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(do_function.FunctionName.Value)) throw new Exception("Unknowed function");
-                    var para_value_list = new List<float>();
-                    foreach (Exp para in do_function.Parameters)
-                    {
-                        if (para is Number num) para_value_list.Add(num.Value);
-                        else if (para is Symbol sym) para_value_list.Add(VariablesOwners.Dic[do_function.Owner].Variable[sym.Value]);
-                        else if (para is BinOp op) para_value_list.Add(interpreter.Run(op));
-                        else throw new Exception("unknowed something");
-                    }
-                    Enumerable.Range(0, do_function.Parameters.Count).ToList().ForEach(i =>
-                        VariablesOwners.Dic[do_function.FunctionName.Value].Variable[VariablesOwners.Dic[do_function.FunctionName.Value].ParameterList[i]] = para_value_list[i]
-                    );
-                    Console.WriteLine(interpreter.Run(VariablesOwners.Dic[block.FunctionName].Function[do_function.FunctionName.Value]));
-                }
+                    Console.WriteLine(interpreter.Run(do_function));
                 else Console.WriteLine(interpreter.Run(print_statement.Parameter));
                 return ReaderPassword.Password;
             }
@@ -81,8 +64,8 @@ namespace MyLang
         {
             if(statement is Ast.FunctionStatement function_statement)
             {
-                if (!VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(function_statement.FunctionName.Value)) throw new Exception("Unknowed function name");
-                VariablesOwners.Dic[block.FunctionName].Function[function_statement.FunctionName.Value] = function_statement.Functionblock;
+                if(VariablesWareHouse.Global.ContainsKey(function_statement.FunctionName.Value)) throw new Exception("Exist function name");
+                VariablesWareHouse.Global.Add(function_statement.FunctionName.Value, function_statement);
                 return ReaderPassword.Password;
             }
             else return NextReader.RunCode(interpreter, block, statement);
@@ -126,7 +109,9 @@ namespace MyLang
                     {
                         if (interpreter.Compare(compression))
                         {
-                            interpreter.Run(condition.Value);
+                            VariablesWareHouse.Stacks.Push(new MyLangStack(condition.Value.FunctionName));
+                            var ans = interpreter.Run(condition.Value);
+                            if (ans != ReaderPassword.Password) return ans;
                             break;
                         }
                     }
@@ -134,7 +119,9 @@ namespace MyLang
                     {
                         if (number.Value != 0)
                         {
-                            interpreter.Run(condition.Value);
+                            VariablesWareHouse.Stacks.Push(new MyLangStack(condition.Value.FunctionName));
+                            var ans = interpreter.Run(condition.Value);
+                            if (ans != ReaderPassword.Password) return ans;
                             break;
                         }
                     }
@@ -142,7 +129,9 @@ namespace MyLang
                     {
                         if (symbol.Value == "Else")
                         {
-                            interpreter.Run(condition.Value);
+                            VariablesWareHouse.Stacks.Push(new MyLangStack(condition.Value.FunctionName));
+                            var ans = interpreter.Run(condition.Value);
+                            if (ans != ReaderPassword.Password) return ans;
                             break;
                         }
                     }
@@ -163,6 +152,8 @@ namespace MyLang
                 {
                     while (interpreter.Compare(compression))
                     {
+                        VariablesWareHouse.Stacks.Push(new MyLangStack(while_statement.Mission.FunctionName));
+
                         interpreter.Run(while_statement.Mission);
                     }
                 }
@@ -170,14 +161,34 @@ namespace MyLang
                 {
                     while (number.Value != 0)
                     {
+                        VariablesWareHouse.Stacks.Push(new MyLangStack(while_statement.Mission.FunctionName));
+
                         interpreter.Run(while_statement.Mission);
                     }
                 }
                 else if (while_statement.Condition is Symbol symbol)
                 {
-                    while (VariablesOwners.Dic[block.FunctionName].Variable[symbol.Value] != 0)
+                    foreach(var stack in VariablesWareHouse.Stacks)
                     {
-                        interpreter.Run(while_statement.Mission);
+                        if (stack.SymboToValue.ContainsKey(symbol.Value))
+                        {
+                            while (stack.SymboToValue[symbol.Value] != 0)
+                            {
+                                VariablesWareHouse.Stacks.Push(new MyLangStack(while_statement.Mission.FunctionName));
+
+                                interpreter.Run(while_statement.Mission);
+                            }
+                            return ReaderPassword.Password;
+                        }
+                    }
+                    if (VariablesWareHouse.Global.ContainsKey(symbol.Value))
+                    {
+                        while (interpreter.Run(VariablesWareHouse.Global[symbol.Value]) != 0)
+                        {
+                            VariablesWareHouse.Stacks.Push(new MyLangStack(while_statement.Mission.FunctionName));
+                            interpreter.Run(while_statement.Mission);
+                        }
+                        return ReaderPassword.Password;
                     }
                 }
                 return ReaderPassword.Password;
@@ -199,6 +210,8 @@ namespace MyLang
                 {
                     while (interpreter.Compare(compression))
                     {
+                        VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
+
                         interpreter.Run(for_statement.Mission);
                         interpreter.Run(for_statement.DoItEverytime);
                     }
@@ -207,16 +220,36 @@ namespace MyLang
                 {
                     while (number.Value != 0)
                     {
+                        VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
+
                         interpreter.Run(for_statement.Mission);
                         interpreter.Run(for_statement.DoItEverytime);
                     }
                 }
                 else if (for_statement.Condition.Expression is Symbol symbol)
                 {
-                    while (VariablesOwners.Dic[block.FunctionName].Variable[symbol.Value] != 0)
+                    foreach (var stack in VariablesWareHouse.Stacks)
                     {
-                        interpreter.Run(for_statement.Mission);
-                        interpreter.Run(for_statement.DoItEverytime);
+                        if (stack.SymboToValue.ContainsKey(symbol.Value))
+                        {
+                            while (stack.SymboToValue[symbol.Value] != 0)
+                            {
+                                VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
+
+                                interpreter.Run(for_statement.Mission);
+                            }
+                            return ReaderPassword.Password;
+                        }
+                    }
+                    if (VariablesWareHouse.Global.ContainsKey(symbol.Value))
+                    {
+                        while (interpreter.Run(VariablesWareHouse.Global[symbol.Value]) != 0)
+                        {
+                            VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
+
+                            interpreter.Run(for_statement.Mission);
+                        }
+                        return ReaderPassword.Password;
                     }
                 }
                 return ReaderPassword.Password;

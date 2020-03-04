@@ -8,21 +8,22 @@ namespace MyLang
     /// <summary>
     /// 変数と方法の名前を保存する
     /// </summary>
-    static class VariablesOwners
+    static class VariablesWareHouse
     {
         //全ての方法は変数と自分のBlockを持つ
-        static public Dictionary<string,UserDictionary> Dic = new Dictionary<string,UserDictionary>();
-        public class UserDictionary
+        static public Dictionary<string, Ast.Ast> Global = new Dictionary<string, Ast.Ast>();
+        static public Stack<MyLangStack> Stacks = new Stack<MyLangStack>();
+        
+    }
+
+    public class MyLangStack
+    {
+        public readonly string Name;
+        public Dictionary<string, float> SymboToValue;
+        public MyLangStack(string name)
         {
-            public Dictionary<string, float> Variable ;
-            public Dictionary<string, Block> Function ;
-            public List<string> ParameterList;
-            public UserDictionary()
-            {
-                Variable = new Dictionary<string, float> { };
-                Function = new Dictionary<string, Block> { };
-                ParameterList = new List<string>();
-            }
+            SymboToValue = new Dictionary<string, float>();
+            Name = name;
         }
     }
 
@@ -64,8 +65,13 @@ namespace MyLang
                 foreach(Statement statement in block.StatementList)
                 {
                     var run_ans = ReadCounter.RunCode(this,block,statement);
-                    if (run_ans != ReaderPassword.Password) return run_ans;
+                    if (run_ans != ReaderPassword.Password)
+                    {
+                        VariablesWareHouse.Stacks.Pop();
+                        return run_ans;
+                    }
                 }
+                if (VariablesWareHouse.Stacks.Count > 0) VariablesWareHouse.Stacks.Pop();
                 return 0;
             }
             else 
@@ -96,45 +102,50 @@ namespace MyLang
                 return ast_num.Value;
             else if(exp is Ast.Symbol ast_symbol)
             {
-                if (VariablesOwners.Dic.ContainsKey(ast_symbol.Owner))
+                foreach(var my_stack in VariablesWareHouse.Stacks)
                 {
-                    if (VariablesOwners.Dic[ast_symbol.Owner].Variable.ContainsKey(ast_symbol.Value)) return VariablesOwners.Dic[ast_symbol.Owner].Variable[ast_symbol.Value];
-                    else if (VariablesOwners.Dic["main"].Variable.ContainsKey(ast_symbol.Value)) return VariablesOwners.Dic["main"].Variable[ast_symbol.Value];
-                    else throw new Exception("Unknowned Variable");
-                    
+                    if (my_stack.SymboToValue.ContainsKey(ast_symbol.Value)) return my_stack.SymboToValue[ast_symbol.Value];
                 }
-                else throw new Exception("Unknowed variable or function");
+                if (VariablesWareHouse.Global.ContainsKey(ast_symbol.Value)) return Run(VariablesWareHouse.Global[ast_symbol.Value]);
+                else throw new Exception("Unknowed Variable");
+                
             }
             else if(exp is FunctionCall function_call)
             {
-                if (!VariablesOwners.Dic[function_call.Owner].Function.ContainsKey(function_call.FunctionName.Value)) throw new Exception("Unknowned function");
                 var para_value_list = new List<float>();
                 foreach (Exp para in function_call.Parameters)
                 {
                     if (para is Number num) para_value_list.Add(num.Value);
-                    else if (para is Symbol sym) para_value_list.Add(VariablesOwners.Dic[function_call.Owner].Variable[sym.Value]);
+                    else if (para is Symbol sym) para_value_list.Add(Run(sym));
+                    else if(para is BinOp bin) para_value_list.Add(Run(bin));
                     else throw new Exception("unknowed something");
                 }
-                Enumerable.Range(0, function_call.Parameters.Count).ToList().ForEach(i =>
-                    VariablesOwners.Dic[function_call.FunctionName.Value].Variable[VariablesOwners.Dic[function_call.FunctionName.Value].ParameterList[i]] = para_value_list[i]
-                );
-                return Run(VariablesOwners.Dic[function_call.Owner].Function[function_call.FunctionName.Value]);
-            }
-            else if(exp is LocateSymbol locate)
-            {
-                if (!VariablesOwners.Dic.ContainsKey(locate.Owner)) throw new Exception("Unknowed function");
-                if (VariablesOwners.Dic[locate.Owner].Variable.ContainsKey(locate.value_string))
-                    return VariablesOwners.Dic[locate.Owner].Variable[locate.value_string];
-                else throw new Exception("Error Parameter");
+                if (VariablesWareHouse.Global.ContainsKey(function_call.FunctionName.Value))
+                {
+                    if (VariablesWareHouse.Global[function_call.FunctionName.Value] is FunctionStatement function_statement)
+                    {
+                        VariablesWareHouse.Stacks.Push(new MyLangStack(function_call.FunctionName.Value));
+                        Enumerable.Range(0, function_call.Parameters.Count).ToList().ForEach(i =>
+                         VariablesWareHouse.Stacks.Peek().SymboToValue.Add((function_statement.Parameters[i]).Value, Run(function_call.Parameters[i])));
+                        return Run(function_statement.Functionblock);
+                    }
+                    else throw new Exception("error function Name");
+                }
+                else throw new Exception("Unknowed function");
             }
             else if(exp is EqualExp equalExp)
             {
-                if (VariablesOwners.Dic[equalExp.Lhs.Owner].Variable.ContainsKey(equalExp.Lhs.Value))
-                    VariablesOwners.Dic[equalExp.Lhs.Owner].Variable[equalExp.Lhs.Value] = Run(equalExp.Rhs);
-                else if (VariablesOwners.Dic["main"].Variable.ContainsKey(equalExp.Lhs.Value))
-                    VariablesOwners.Dic["main"].Variable[equalExp.Lhs.Value] = Run(equalExp.Rhs);
-                else
-                    throw new Exception("Unknowed variable");
+                foreach(var variable in VariablesWareHouse.Stacks)
+                {
+                    if (variable.SymboToValue.ContainsKey(equalExp.Lhs.Value))
+                    {
+                        variable.SymboToValue[equalExp.Lhs.Value] = Run(equalExp.Rhs);
+                        break;
+                    }
+                }
+                if (VariablesWareHouse.Global.ContainsKey(equalExp.Lhs.Value))
+                    VariablesWareHouse.Global[equalExp.Lhs.Value] = new Number( Run(equalExp.Rhs));
+                else throw new Exception("Unknowed variable");
                 return 0;
             }
             else return 0;

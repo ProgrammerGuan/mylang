@@ -159,10 +159,12 @@ namespace MyLang
         {
             public readonly Symbol FunctionName;
             public readonly Block Functionblock;
-            public FunctionStatement(Symbol function_name,Block function_block)
+            public readonly List<Symbol> Parameters;
+            public FunctionStatement(Symbol function_name,Block function_block,List<Symbol> parameters)
             {
                 FunctionName = function_name;
                 Functionblock = function_block;
+                Parameters = parameters;
             }
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {
@@ -281,11 +283,9 @@ namespace MyLang
         public class Symbol : Exp
         {
             public readonly string Value;
-            public readonly string Owner;
-            public Symbol(string value,string owner)
+            public Symbol(string value)
             {
                 Value = value;
-                Owner = owner;
             }
 
             public override Tuple<string, Ast[]> GetDisplayInfo()
@@ -298,12 +298,10 @@ namespace MyLang
         {
             public readonly Symbol FunctionName;
             public readonly List<Exp> Parameters;
-            public readonly string Owner;
-            public FunctionCall(string name, string functionOwner, List<Exp> parameters)
+            public FunctionCall(string name, List<Exp> parameters)
             {
-                FunctionName = new Symbol(name, functionOwner);
+                FunctionName = new Symbol(name);
                 Parameters = parameters;
-                Owner = functionOwner;
             }
             public override Tuple<string, Ast[]> GetDisplayInfo()
             {

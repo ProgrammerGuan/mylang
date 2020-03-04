@@ -99,11 +99,6 @@ namespace MyLang
         /// <returns></returns>
         private Ast.Block Block(Ast.Block block)
         {
-            if (!VariablesOwners.Dic.ContainsKey(block.FunctionName))
-            {
-                var newDic = new VariablesOwners.UserDictionary();
-                VariablesOwners.Dic.Add(block.FunctionName, newDic);
-            }
             var statement = Statement(block);
             if (statement == null) return block;
             else
@@ -185,8 +180,6 @@ namespace MyLang
                     var end_sign = Statement_Keyword();
                     if (end_sign .Type == Ast.KeywordType.End)
                     {
-                        if (VariablesOwners.Dic[block.FunctionName].Variable.ContainsKey(lhs_sym.Value)) throw new Exception("Existed Variable");
-                        VariablesOwners.Dic[block.FunctionName].Variable.Add(lhs_sym.Value, 0);
                         if(IsMinus) return new Ast.AssignStatement(lhs_sym, new Ast.BinOp(Ast.BinOpType.Sub ,new Ast.Number(0),rhs));
                         return new Ast.AssignStatement(lhs_sym, rhs);
                     }
@@ -216,7 +209,7 @@ namespace MyLang
                 var left_block = Statement_Keyword();
                 if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need a '{' ");
                 var function_block = new Ast.Block(name.Value);
-                var function_statement = new Ast.FunctionStatement(name, Block(function_block));
+                var function_statement = new Ast.FunctionStatement(name, Block(function_block),null);
                 var right_block = Statement_Keyword();
                 if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need a '}' ");
                 return function_statement;
@@ -226,7 +219,13 @@ namespace MyLang
                 var left_block = Statement_Keyword();
                 if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need a '{' ");
                 var function_block = new Ast.Block(function_call.FunctionName.Value);
-                var function_statement = new Ast.FunctionStatement(function_call.FunctionName, Block(function_block));
+                var parameter_list = new List<Ast.Symbol>();
+                foreach(var par in function_call.Parameters)
+                {
+                    if (par is Ast.Symbol sym) parameter_list.Add(sym);
+                    else throw new Exception("Invalid Parameters");
+                }
+                var function_statement = new Ast.FunctionStatement(function_call.FunctionName, Block(function_block),parameter_list);
                 var right_block = Statement_Keyword();
                 if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need a '}' ");
                 return function_statement;
@@ -259,7 +258,7 @@ namespace MyLang
             if (right_barcket.Type != Ast.KeywordType.RightBracket) throw new Exception("Need '(' ");
             var left_block = Statement_Keyword();
             if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need '{' ");
-            var if_block = Block(new Ast.Block("if"+Ast.IfStatement.IfCount));
+            var if_block = Block(new Ast.Block("if"+Ast.IfStatement.IfCount++));
             var right_block = Statement_Keyword();
             if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
             var if_statement = new Ast.IfStatement();
@@ -280,7 +279,7 @@ namespace MyLang
             if (right_barcket.Type != Ast.KeywordType.RightBracket) throw new Exception("Need '(' ");
             var left_block = Statement_Keyword();
             if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need '{' ");
-            var if_block = Block(new Ast.Block("if" + Ast.IfStatement.IfCount));
+            var if_block = Block(new Ast.Block("if" + Ast.IfStatement.IfCount++));
             var right_block = Statement_Keyword();
             if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
             ifStatement.AddCondition(condition, if_block);
@@ -294,10 +293,10 @@ namespace MyLang
             progress();
             var left_block = Statement_Keyword();
             if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need '{' ");
-            var if_block = Block(new Ast.Block("if" + Ast.IfStatement.IfCount));
+            var if_block = Block(new Ast.Block("if" + Ast.IfStatement.IfCount++));
             var right_block = Statement_Keyword();
             if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need '}' ");
-            ifStatement.AddCondition(new Ast.Symbol("Else", if_block.FunctionName), if_block);
+            ifStatement.AddCondition(new Ast.Symbol("Else"), if_block);
             return ifStatement;
         }
 
@@ -425,12 +424,7 @@ namespace MyLang
         {
             var next_token = currentToken();
             if (next_token.Type == TokenType.LeftBracket) return FunctionCall(token, block, make_function);
-            if (make_function)
-            {
-                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(token.Text)) throw new Exception("Existed Function name");
-                VariablesOwners.Dic[block.FunctionName].Function.Add(token.Text, null);
-            }
-            return new Ast.Symbol(token.Text, block.FunctionName);
+            return new Ast.Symbol(token.Text);
             
         }
 
@@ -442,22 +436,7 @@ namespace MyLang
             Parameters(parameters, block);
             var right_brack = Statement_Keyword();
             if (right_brack.Type != Ast.KeywordType.RightBracket) throw new Exception("Need a ')' ");
-            if (make_function)
-            {
-                if (VariablesOwners.Dic[block.FunctionName].Function.ContainsKey(function.Text)) throw new Exception("Existed Function name");
-                VariablesOwners.Dic[block.FunctionName].Function.Add(function.Text, null);
-                VariablesOwners.Dic.Add(function.Text, new VariablesOwners.UserDictionary());
-                foreach(Ast.Exp par in parameters)
-                {
-                    if (par is Ast.Symbol function_variable)
-                    {
-                        VariablesOwners.Dic[function.Text].Variable.Add(function_variable.Value, 0);
-                        VariablesOwners.Dic[function.Text].ParameterList.Add(function_variable.Value);
-                    }
-                    else throw new Exception("unknowed variable");
-                }
-            }
-            return new Ast.FunctionCall(function.Text, block.FunctionName, parameters);
+            return new Ast.FunctionCall(function.Text, parameters);
         }
 
         private List<Ast.Exp> Parameters(List<Ast.Exp> parameters, Ast.Block block)
