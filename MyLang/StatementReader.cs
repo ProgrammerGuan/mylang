@@ -305,7 +305,6 @@ namespace MyLang
                     while (interpreter.Compare(compression))
                     {
                         VariablesWareHouse.Stacks.Push(new MyLangStack(while_statement.Mission.FunctionName));
-
                         interpreter.Run(while_statement.Mission);
                     }
                 }
@@ -363,7 +362,6 @@ namespace MyLang
                     while (interpreter.Compare(compression))
                     {
                         VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
-
                         interpreter.REPLRun(for_statement.Mission);
                         interpreter.REPLRun(for_statement.DoItEverytime);
                     }
@@ -373,7 +371,6 @@ namespace MyLang
                     while (number.Value != 0)
                     {
                         VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
-
                         interpreter.REPLRun(for_statement.Mission);
                         interpreter.REPLRun(for_statement.DoItEverytime);
                     }
@@ -387,7 +384,6 @@ namespace MyLang
                             while (stack.SymboToValue[symbol.Value] != 0)
                             {
                                 VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
-
                                 interpreter.REPLRun(for_statement.Mission);
                             }
                             return ReaderPassword.Password;
@@ -398,7 +394,6 @@ namespace MyLang
                         while (interpreter.REPLRun(VariablesWareHouse.Global[symbol.Value]) != 0)
                         {
                             VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
-
                             interpreter.REPLRun(for_statement.Mission);
                         }
                         return ReaderPassword.Password;
@@ -420,7 +415,6 @@ namespace MyLang
                     while (interpreter.Compare(compression))
                     {
                         VariablesWareHouse.Stacks.Push(new MyLangStack(for_statement.Mission.FunctionName));
-
                         interpreter.Run(for_statement.Mission);
                         interpreter.Run(for_statement.DoItEverytime);
                     }

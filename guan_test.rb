@@ -166,7 +166,18 @@ function fib(n){
     }
 }
 print fib(9);
-","34"]
+","34"],
+["
+function Sum(n){
+    if(n<1){
+        return 0;
+    }
+    else{
+        return n+Sum(n-1);
+    }
+}
+print Sum(5);
+","15"]
     ]
     main_test(test_codes,"")
 end

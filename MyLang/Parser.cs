@@ -120,14 +120,11 @@ namespace MyLang
         /// <returns></returns>
         private Ast.Ast Statement(Ast.Block block)
         {
-
             var token = currentToken();
             if (token == null) return null;
             if (token.IsKeyWord)
             {
                 progress();
-
-
                 switch (token.Type)
                 {
                     case TokenType.Let:
@@ -155,7 +152,6 @@ namespace MyLang
             }
             else
                 return ExpressionStatement(block);
-            
         }
 
         private Ast.AssignStatement AssignStatement(Ast.Block block)
@@ -203,7 +199,7 @@ namespace MyLang
         {
             var token = currentToken();
             progress();
-            var function_name = VariableOrFunctionCall(token,block,true);
+            var function_name = VariableOrFunctionCall(token,block);
             if (function_name is Ast.Symbol name)
             {
                 var left_block = Statement_Keyword();
@@ -408,7 +404,7 @@ namespace MyLang
                 case TokenType.Number:
                     return new Ast.Number(Convert.ToSingle(token.Text));
                 case TokenType.Symbol:
-                    return VariableOrFunctionCall(token,block,false);
+                    return VariableOrFunctionCall(token,block);
                 case TokenType.At:
                     var index = currentToken();
                     if (!index.IsNumber) throw new Exception("Index must be number");
@@ -420,15 +416,15 @@ namespace MyLang
             }
         }
 
-        private Ast.Exp VariableOrFunctionCall(Token token, Ast.Block block,bool make_function)
+        private Ast.Exp VariableOrFunctionCall(Token token, Ast.Block block)
         {
             var next_token = currentToken();
-            if (next_token.Type == TokenType.LeftBracket) return FunctionCall(token, block, make_function);
+            if (next_token.Type == TokenType.LeftBracket) return FunctionCall(token, block);
             return new Ast.Symbol(token.Text);
             
         }
 
-        private Ast.FunctionCall FunctionCall(Token function, Ast.Block block,bool make_function)
+        private Ast.FunctionCall FunctionCall(Token function, Ast.Block block)
         {
             var left_bracket = Statement_Keyword();
             if (left_bracket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need a '(' ");

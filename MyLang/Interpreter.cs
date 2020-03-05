@@ -13,7 +13,6 @@ namespace MyLang
         //全ての方法は変数と自分のBlockを持つ
         static public Dictionary<string, Ast.Ast> Global = new Dictionary<string, Ast.Ast>();
         static public Stack<MyLangStack> Stacks = new Stack<MyLangStack>();
-        
     }
 
     public class MyLangStack
