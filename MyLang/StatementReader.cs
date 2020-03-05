@@ -34,6 +34,7 @@ namespace MyLang
                 if (VariablesWareHouse.Stacks.Count > 0)
                     VariablesWareHouse.Stacks.Peek().SymboToValue.Add(assign_statement.Lhs.Value, interpreter.Run(assign_statement.Rhs));
                 else VariablesWareHouse.Global.Add(assign_statement.Lhs.Value, assign_statement.Rhs);
+                //return interpreter.Run(assign_statement.Rhs);
                 return ReaderPassword.Password;
             }
             else return NextReader.RunCode(interpreter, block, statement);
@@ -78,8 +79,8 @@ namespace MyLang
         {
             if(statement is Ast.ExpresstionStatement exp_statement)
             {
-                interpreter.Run(exp_statement.Expression);
-                return ReaderPassword.Password;
+                return interpreter.Run(exp_statement.Expression);
+                //return ReaderPassword.Password;
             }
             else return NextReader.RunCode(interpreter, block, statement);
         }

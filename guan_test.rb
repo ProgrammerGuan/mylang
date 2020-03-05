@@ -1,8 +1,9 @@
 require "open3"
 
 $lang_exe = "MyLang\\bin\\Debug\\MyLang"
+$testcode_filename = "testcode.mylang"
 def main_test(test_codes,mode)
-    if mode!="-c"
+    if mode!=""
         test_codes.length.times do |i|
             o,s = Open3.capture3($lang_exe,mode,test_codes[i][0])
             if(o==test_codes[i][1]+"\n" || o==test_codes[i][1]) 
@@ -14,8 +15,8 @@ def main_test(test_codes,mode)
         end
     else
         test_codes.length.times do |i|
-            File.write("code.txt",test_codes[i][0])
-            o,s = Open3.capture3($lang_exe + " -c < code.txt")
+            File.write($testcode_filename,test_codes[i][0])
+            o,s = Open3.capture3($lang_exe + " " + $testcode_filename)
             if(o==test_codes[i][1]+"\n") 
                 print "."
             else 
@@ -52,7 +53,7 @@ def interpreter_test
         ["print 1+2*3;","7"],
         ["1+34;",""]
     ]
-    main_test(test_codes,"")
+    main_test(test_codes,"-i")
 end
 
 def program_test
@@ -60,11 +61,9 @@ def program_test
 ["
 let leta=1;
 print leta;        
--e
 ","1"],
 ["
 print 3+5;
--e
 ","8"],
 ["
 let a=1+4;
@@ -74,7 +73,6 @@ if(a>3){
 else{
     print 0;
 }
--e
 ","5"],
 ["
 let a = 99;
@@ -87,7 +85,6 @@ let af = 8555;
 let aa = 5451;
 print af;
 }
--e
 ",
 "8555"],
 ["
@@ -97,14 +94,12 @@ function add(a,b){
     return c;
 }
 print add(1,5);
--e
 ","6"],
 ["
 function Sub(a,b){
     return a - b;
 }
 print 5 + Sub(4,2);
--e
 ","7"],
 ["
 let a=0;
@@ -112,7 +107,6 @@ while(a<8){
     print a;
     a=a+1;
 }
--e
 ","0
 1
 2
@@ -126,7 +120,6 @@ let a=0;
 for(a=3;a<8;a=a+1){
     print a;
 }
--e
 ","3
 4
 5
@@ -142,7 +135,6 @@ function Bigger(a,b){
     }
 }
 Bigger(5,6);
--e
 ","6"],
 ["
 function fib(n){
@@ -154,10 +146,20 @@ function fib(n){
     }
 }
 print fib(8);
--e
-","21"]
+","21"],
+["
+function fib(n){
+    if(n<3){
+        return 1;
+    }
+    else{
+        return fib(n-1) + fib(n-2);
+    }
+}
+print fib(9);
+","34"]
     ]
-    main_test(test_codes,"-c")
+    main_test(test_codes,"")
 end
 
 tokenize_test

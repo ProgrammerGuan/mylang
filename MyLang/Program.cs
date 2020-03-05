@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
+using System.IO;
 using MyLang;
 
 class Program
@@ -15,7 +15,8 @@ class Program
     {
         bool tokenizeOnly = false; // tokenize だけで終わるかどうか
         bool parseOnly = false; // parse だけで終わるかどうか
-        bool isCodingMode = false;  //Coding Mode
+        bool isREPL = false;  //Coding Mode
+        bool CompileFile = true;
         // 引数をparseする
         var rest = new List<string>();
         for (int i = 0; i < args.Length; i++)
@@ -30,36 +31,58 @@ class Program
                 case "-t":
                 case "--tokenize":
                     tokenizeOnly = true;
+                    CompileFile = false;
                     break;
                 case "-p":
                 case "--parse":
                     parseOnly = true;
+                    CompileFile = false;
                     break;
                 case "-d":
                 case "--debug":
                     Logger.LogEnabled = true;
+                    CompileFile = false;
                     break;
                 case "-c":
                 case "--coding":
-                    isCodingMode = true;
+                    isREPL = true;
+                    CompileFile = false;
+                    break;
+                case "-i":
+                case "--interpreter":
+                    CompileFile = false;
                     break;
                 default:
                     rest.Add(arg);
                     break;
             }
         }
-
         var codeList = new List<string>();
-        while (isCodingMode)
+        if (CompileFile)
         {
+            string path = Directory.GetCurrentDirectory() + @"\" + rest[0];
+            codeList = File.ReadAllLines(path).ToList();
+            Execute_Program(codeList);
+            exit(0);
+        }
+        // 各実行器を用意する
+        ITokenizer tokenizer = new SpaceSeparatedTokenizer();
+        var parser = new Parser();
+        var interpreter = new Interpreter();
+        while (isREPL)
+        {
+            Console.Write(">>> ");
             var codeLine = Console.ReadLine();
-            if (codeLine == "-e" || codeLine == "-execution")
+            if (codeLine != "!q" && codeLine != "!Q")
             {
-                Execute_Program(codeList);
-                exit(0);
+                var tok = tokenizer.Tokenize(codeLine);
+                var par = parser.ProgramingParse(tok);
+                Console.WriteLine(par.GetDisplayInfo());
+                Console.Write("> ");
+                Console.WriteLine(interpreter.Run(par));
             }
-            else
-                codeList.Add(codeLine);
+            else exit(0);
+
         }
 
         // 引数がないなら、ヘルプを表示して終わる
@@ -68,11 +91,6 @@ class Program
             showHelpAndExit();
         }
 
-        // 各実行器を用意する
-        ITokenizer tokenizer = new SpaceSeparatedTokenizer();
-        var parser = new Parser();
-        var interpreter = new Interpreter();
-        
         // Tokenize を行う
         var tokens = tokenizer.Tokenize(string.Join(" ", rest.ToArray()));
 

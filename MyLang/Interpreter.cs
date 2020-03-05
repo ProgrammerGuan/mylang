@@ -67,7 +67,7 @@ namespace MyLang
                     var run_ans = ReadCounter.RunCode(this,block,statement);
                     if (run_ans != ReaderPassword.Password)
                     {
-                        VariablesWareHouse.Stacks.Pop();
+                        if (VariablesWareHouse.Stacks.Count > 0) VariablesWareHouse.Stacks.Pop();
                         return run_ans;
                     }
                 }
