@@ -77,9 +77,10 @@ class Program
             {
                 var tok = tokenizer.Tokenize(codeLine);
                 var par = parser.ProgramingParse(tok);
-                Console.WriteLine(par.GetDisplayInfo());
                 Console.Write("> ");
-                Console.WriteLine(interpreter.Run(par));
+                var ans = interpreter.REPLRun(par);
+                if (ans !=ReaderPassword.Password)
+                    Console.WriteLine(ans);
             }
             else exit(0);
 

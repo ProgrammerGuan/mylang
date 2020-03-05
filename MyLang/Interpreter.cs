@@ -55,6 +55,28 @@ namespace MyLang
             WhileReader.SetNextReader(ForReader);
         }
 
+        public float REPLRun(Ast.Ast ast)
+        {
+            if (ast is Ast.Exp exp)
+                return Answer(exp);
+            else if (ast is Ast.Block block)
+            {
+                foreach (Statement statement in block.StatementList)
+                {
+                    var run_ans = ReadCounter.REPLReadCode(this, block, statement);
+                    if (run_ans != ReaderPassword.Password)
+                    {
+                        if (VariablesWareHouse.Stacks.Count > 0) VariablesWareHouse.Stacks.Pop();
+                        return run_ans;
+                    }
+                }
+                if (VariablesWareHouse.Stacks.Count > 0) VariablesWareHouse.Stacks.Pop();
+                return ReaderPassword.Password;
+            }
+            else
+                throw new Exception("Havn't got any block");
+        }
+
         public float Run(Ast.Ast ast)
         {
             // TODO: 仮のダミー実装
@@ -64,7 +86,7 @@ namespace MyLang
             {
                 foreach(Statement statement in block.StatementList)
                 {
-                    var run_ans = ReadCounter.RunCode(this,block,statement);
+                    var run_ans = ReadCounter.RunCode(this, block, statement);
                     if (run_ans != ReaderPassword.Password)
                     {
                         if (VariablesWareHouse.Stacks.Count > 0) VariablesWareHouse.Stacks.Pop();
