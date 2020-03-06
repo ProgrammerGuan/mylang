@@ -10,10 +10,6 @@ namespace MyLang
      public abstract class StatementReader
     {
         protected StatementReader NextReader;
-        public virtual void SetNextReader(StatementReader reader)
-        {
-            NextReader = reader;
-        }
         public abstract float RunCode(Interpreter interpreter, Ast.Block block, Ast.Statement statement);
         public abstract float REPLReadCode(Interpreter interpreter, Ast.Block block, Ast.Statement statement);
     }
