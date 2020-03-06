@@ -1,14 +1,9 @@
-sum = 1
-s = 3
-d = 2
-now_num = 1
-while(s<=1001)
-    4.times do
-        now_num +=d        
-        sum+=now_num
+def fib(n)
+    if n<3
+        1
+    else
+        fib(n-1)+fib(n-2)
     end
-    d+=2
-    s+=2
 end
 
-puts sum
+puts fib(40)

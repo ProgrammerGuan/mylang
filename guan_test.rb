@@ -252,6 +252,17 @@ def files_test
 0
 100"
     test_files[9][1] = "6.691713E+08"
+    test_files[10][1] = "55
+1
+3
+6
+10
+15
+21
+28
+36
+45
+55"
     test_files.each do |k|
         o,s = Open3.capture3($lang_exe + " " + k[0])
         if(o==k[1]+"\n") 
