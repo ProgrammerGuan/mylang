@@ -200,17 +200,7 @@ namespace MyLang
             var token = currentToken();
             progress();
             var function_name = VariableOrFunctionCall(token,block);
-            if (function_name is Ast.Symbol name)
-            {
-                var left_block = Statement_Keyword();
-                if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need a '{' ");
-                var function_block = new Ast.Block(name.Value);
-                var function_statement = new Ast.FunctionStatement(name, Block(function_block),null);
-                var right_block = Statement_Keyword();
-                if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need a '}' ");
-                return function_statement;
-            }
-            else if(function_name is Ast.FunctionCall function_call)
+            if(function_name is Ast.FunctionCall function_call)
             {
                 var left_block = Statement_Keyword();
                 if (left_block.Type != Ast.KeywordType.Leftblock) throw new Exception("Need a '{' ");
@@ -226,7 +216,7 @@ namespace MyLang
                 if (right_block.Type != Ast.KeywordType.Rightblock) throw new Exception("Need a '}' ");
                 return function_statement;
             }
-            else throw new Exception("Invalid function name");
+            else throw new Exception("Invalid function Call");
         }
 
         private Ast.ReturnStatement ReturnStatement(Ast.Block block)
