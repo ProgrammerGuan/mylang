@@ -1,0 +1,11 @@
+function Pow(a,b){
+    let ans=1;
+    let i=0;
+    while(i<b){
+        ans = ans*a;
+        i=i+1;
+    }
+    return ans;
+}
+
+print Pow(2,10);

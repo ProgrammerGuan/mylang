@@ -93,7 +93,7 @@ namespace MyLang
                     }
                 }
                 if (VariablesWareHouse.Stacks.Count > 0) VariablesWareHouse.Stacks.Pop();
-                return 0;
+                return ReaderPassword.Password;
             }
             else 
                 throw new Exception("Havn't got any block");
@@ -161,7 +161,7 @@ namespace MyLang
                     if (variable.SymboToValue.ContainsKey(equalExp.Lhs.Value))
                     {
                         variable.SymboToValue[equalExp.Lhs.Value] = Run(equalExp.Rhs);
-                        break;
+                        return 0;
                     }
                 }
                 if (VariablesWareHouse.Global.ContainsKey(equalExp.Lhs.Value))

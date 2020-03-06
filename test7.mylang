@@ -1,0 +1,15 @@
+function pow(n){
+    return n*n;
+}
+function PE(n){
+    let sum1=0;
+    let sum2=0;
+    let i=1;
+    for(i=1;i<=10;i=i+1){
+        sum1 = sum1+pow(i);
+        sum2 = sum2+i;
+    }
+    return pow(sum2)-sum1;
+
+}
+print PE(100);

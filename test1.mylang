@@ -1,0 +1,6 @@
+let a = 5;
+print a;
+while(a<8){
+    print a;
+    a = a+1;
+}

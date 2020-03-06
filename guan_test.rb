@@ -182,7 +182,88 @@ print Sum(5);
     main_test(test_codes,"")
 end
 
+def files_test
+    test_files = []
+    i=1
+    while File.exist?("test"+i.to_s+".mylang")
+        test_files.push(["test"+i.to_s+".mylang",""])
+        i+=1
+    end
+    test_files[0][1] = "5\n5\n6\n7"
+    test_files[1][1] = "6"
+    test_files[2][1] = "10
+0
+1
+2
+3
+4
+15
+0
+1
+2
+3
+4"
+    test_files[3][1] = "1024"
+    test_files[4][1] = "1
+2
+3
+4
+5
+6
+7
+8
+9
+10"
+    test_files[5][1] = "78125"
+    test_files[6][1] = "2640"
+    test_files[7][1] = "1.378465E+11"
+    test_files[8][1] = "10
+0
+9
+1
+8
+2
+7
+3
+6
+4
+15
+5
+4
+6
+3
+7
+2
+8
+1
+9
+105
+5
+0
+4
+1
+3
+2
+2
+3
+1
+4
+100
+0
+100"
+    test_files[9][1] = "6.691713E+08"
+    test_files.each do |k|
+        o,s = Open3.capture3($lang_exe + " " + k[0])
+        if(o==k[1]+"\n") 
+            print "."
+        else 
+            puts "\noutput : "+ o + "expect : " + k[1]
+        end
+    end
+end
+
 tokenize_test
 parser_test
 interpreter_test
 program_test
+files_test

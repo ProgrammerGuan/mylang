@@ -1,0 +1,15 @@
+function Pow(a,b){
+    let i=0;
+    let ans = 1;
+    for(i=0;i<b;i=i+1){
+        ans = ans*a;
+    }
+    return ans;
+}
+
+if(Pow(7,5)>Pow(5,7)){
+    print Pow(7,5);
+}
+else{
+    print Pow(5,7);
+}

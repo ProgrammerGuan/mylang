@@ -1,0 +1,13 @@
+function C(m,n){
+    let up=1;
+    let down=1;
+    let i=1;
+    for(i=n+1;i<=m;i=i+1){
+        up = up*i;
+        let b = i-n;
+        down = down*b;
+    }
+    return up/down;
+}
+
+print C(40,20);

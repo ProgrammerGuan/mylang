@@ -1,0 +1,24 @@
+let num = 100 ; 
+let time = 10 ;
+function add(a,b){
+	return a + b ;
+}
+while( time > 0 ){ 
+    let i=0;
+	for( i = 0 ; i < time ; i = i + 1 ){
+		if( i == 5 ){
+			print time + i ;
+			if( time <= 5 ){
+				num = num - 1 ;
+			}
+		}
+		else{
+			print time - i ;
+		}
+		print i ;
+	}
+	time = time - 5 ;
+	print add( time , num );
+}
+print time ; 
+print num ;

@@ -1,0 +1,13 @@
+let a=5;
+let b=6;
+if(a>1){
+    if(b>4){
+        print b;
+    }
+    else{
+        print 9;
+    }
+}
+else{
+    print a;
+}

@@ -1,0 +1,9 @@
+let a=10;
+while(a<20){
+    let b=0;
+    print a;
+    for(b=0;b<5;b=b+1){
+        print b;
+    }
+    a = a+5;
+}
