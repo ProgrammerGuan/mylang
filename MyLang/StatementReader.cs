@@ -20,6 +20,10 @@ namespace MyLang
 
     public class Counter : StatementReader
     {
+        public Counter()
+        {
+            NextReader = new AssignReader();
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             return NextReader.REPLReadCode(interpreter, block, statement);
@@ -33,6 +37,10 @@ namespace MyLang
 
     public class AssignReader : StatementReader
     {
+        public AssignReader()
+        {
+            NextReader = new PrintReader();
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             if (statement is Ast.AssignStatement assign_statement)
@@ -60,6 +68,10 @@ namespace MyLang
 
     public class PrintReader : StatementReader
     {
+        public PrintReader()
+        {
+            NextReader = new FunctionReader();
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             if (statement is PrintStatement print_statement)
@@ -93,6 +105,10 @@ namespace MyLang
 
     public class FunctionReader : StatementReader
     {
+        public FunctionReader()
+        {
+            NextReader = new ExpressionReader();
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             if (statement is Ast.FunctionStatement function_statement)
@@ -117,6 +133,10 @@ namespace MyLang
 
     public class ExpressionReader : StatementReader
     {
+        public ExpressionReader()
+        {
+            NextReader = new ReturnReader();
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             if (statement is Ast.ExpresstionStatement exp_statement)
@@ -139,6 +159,10 @@ namespace MyLang
 
     public class ReturnReader : StatementReader
     {
+        public ReturnReader()
+        {
+            NextReader = new IfReader();
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             if (statement is ReturnStatement return_statement)
@@ -159,6 +183,10 @@ namespace MyLang
 
     public class IfReader : StatementReader
     {
+        public IfReader()
+        {
+            NextReader = new WhileReader();
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             if (statement is IfStatement if_statement)
@@ -245,6 +273,10 @@ namespace MyLang
 
     public class WhileReader : StatementReader
     {
+        public WhileReader()
+        {
+            NextReader = new ForReader();
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             if (statement is WhileStatement while_statement)
@@ -350,12 +382,16 @@ namespace MyLang
 
     public class ForReader : StatementReader
     {
+        public ForReader()
+        {
+            NextReader = null;
+        }
         public override float REPLReadCode(Interpreter interpreter, Block block, Statement statement)
         {
             if (statement is ForStatement for_statement)
             {
                 if (for_statement.Initialize is ExpresstionStatement initial_exp)
-                    interpreter.ExpressionReader.RunCode(interpreter, block, initial_exp);
+                    interpreter.ReadCounter.RunCode(interpreter, block, initial_exp);
                 else throw new Exception("Invailed initial exp");
                 if (for_statement.Condition.Expression is Compression compression)
                 {
@@ -408,7 +444,7 @@ namespace MyLang
             if (statement is ForStatement for_statement)
             {
                 if (for_statement.Initialize is ExpresstionStatement initial_exp)
-                    interpreter.ExpressionReader.RunCode(interpreter, block, initial_exp);
+                    interpreter.ReadCounter.RunCode(interpreter, block, initial_exp);
                 else throw new Exception("Invailed initial exp");
                 if (for_statement.Condition.Expression is Compression compression)
                 {

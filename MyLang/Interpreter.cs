@@ -33,25 +33,25 @@ namespace MyLang
 
     public class Interpreter
     {
-        public ForReader ForReader = new ForReader();
-        public WhileReader WhileReader = new WhileReader();
-        public IfReader IfReader = new IfReader();
-        public ReturnReader ReturnReader = new ReturnReader();
-        public ExpressionReader ExpressionReader = new ExpressionReader();
-        public FunctionReader FunctionReader = new FunctionReader();
-        public PrintReader PrintReader = new PrintReader();
-        public AssignReader AssignReader = new AssignReader();
+        //public ForReader ForReader = new ForReader();
+        //public WhileReader WhileReader = new WhileReader();
+        //public IfReader IfReader = new IfReader();
+        //public ReturnReader ReturnReader = new ReturnReader();
+        //public ExpressionReader ExpressionReader = new ExpressionReader();
+        //public FunctionReader FunctionReader = new FunctionReader();
+        //public PrintReader PrintReader = new PrintReader();
+        //public AssignReader AssignReader = new AssignReader();
         public Counter ReadCounter = new Counter();
         public Interpreter()
         {
-            ReadCounter.SetNextReader(AssignReader);
-            AssignReader.SetNextReader(PrintReader);
-            PrintReader.SetNextReader(FunctionReader);
-            FunctionReader.SetNextReader(ExpressionReader);
-            ExpressionReader.SetNextReader(ReturnReader);
-            ReturnReader.SetNextReader(IfReader);
-            IfReader.SetNextReader(WhileReader);
-            WhileReader.SetNextReader(ForReader);
+            //ReadCounter.SetNextReader(AssignReader);
+            //AssignReader.SetNextReader(PrintReader);
+            //PrintReader.SetNextReader(FunctionReader);
+            //FunctionReader.SetNextReader(ExpressionReader);
+            //ExpressionReader.SetNextReader(ReturnReader);
+            //ReturnReader.SetNextReader(IfReader);
+            //IfReader.SetNextReader(WhileReader);
+            //WhileReader.SetNextReader(ForReader);
         }
 
         public float REPLRun(Ast.Ast ast)
