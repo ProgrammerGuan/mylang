@@ -142,8 +142,8 @@ namespace MyLang
         /// </summary>
         public class PrintStatement : Statement
         {
-            public readonly Ast Parameter;
-            public PrintStatement(Ast parameter)
+            public readonly Exp Parameter;
+            public PrintStatement(Exp parameter)
             {
                 Parameter = parameter;
             }
@@ -346,8 +346,8 @@ namespace MyLang
         public class EqualExp : Exp
         {
             public readonly Symbol Lhs;
-            public readonly Ast Rhs;
-            public EqualExp(Symbol lhs,Ast rhs)
+            public readonly Exp Rhs;
+            public EqualExp(Symbol lhs,Exp rhs)
             {
                 Lhs = lhs;
                 Rhs = rhs;

@@ -83,7 +83,7 @@ namespace MyLang
                 throw new Exception("Havn't got any block");
         }
 
-        private float Answer(Ast.Exp exp)
+        public float Answer(Ast.Exp exp)
         {
             if (exp is Ast.BinOp binOp)
             {
@@ -121,8 +121,8 @@ namespace MyLang
                 foreach (Exp para in function_call.Parameters)
                 {
                     if (para is Number num) para_value_list.Add(num.Value);
-                    else if (para is Symbol sym) para_value_list.Add(Run(sym));
-                    else if(para is BinOp bin) para_value_list.Add(Run(bin));
+                    else if (para is Symbol sym) para_value_list.Add(Answer(sym));
+                    else if(para is BinOp bin) para_value_list.Add(Answer(bin));
                     else throw new Exception("unknowed something");
                 }
                 if (VariablesWareHouse.Global.ContainsKey(function_call.FunctionName.Value))
@@ -131,7 +131,7 @@ namespace MyLang
                     {
                         VariablesWareHouse.Stacks.Push(new MyLangStack(function_call.FunctionName.Value));
                         Enumerable.Range(0, function_call.Parameters.Count).ToList().ForEach(i =>
-                         VariablesWareHouse.Stacks.Peek().SymboToValue.Add((function_statement.Parameters[i]).Value, Run(function_call.Parameters[i])));
+                         VariablesWareHouse.Stacks.Peek().SymboToValue.Add((function_statement.Parameters[i]).Value, Answer(function_call.Parameters[i])));
                         return Run(function_statement.Functionblock);
                     }
                     else throw new Exception("error function Name");
@@ -144,12 +144,12 @@ namespace MyLang
                 {
                     if (variable.SymboToValue.ContainsKey(equalExp.Lhs.Value))
                     {
-                        variable.SymboToValue[equalExp.Lhs.Value] = Run(equalExp.Rhs);
+                        variable.SymboToValue[equalExp.Lhs.Value] = Answer(equalExp.Rhs);
                         return 0;
                     }
                 }
                 if (VariablesWareHouse.Global.ContainsKey(equalExp.Lhs.Value))
-                    VariablesWareHouse.Global[equalExp.Lhs.Value] = new Number( Run(equalExp.Rhs));
+                    VariablesWareHouse.Global[equalExp.Lhs.Value] = new Number( Answer(equalExp.Rhs));
                 else throw new Exception("Unknowed variable");
                 return 0;
             }
@@ -158,8 +158,8 @@ namespace MyLang
 
         public bool Compare(Compression compression)
         {
-            var lhs = Run(compression.Lhs);
-            var rhs = Run(compression.Rhs);
+            var lhs = Answer(compression.Lhs);
+            var rhs = Answer(compression.Rhs);
             switch (compression.CompareOp)
             {
                 case CompareOpType.Larger:

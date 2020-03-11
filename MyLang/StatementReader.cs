@@ -54,7 +54,7 @@ namespace MyLang
             if (statement is Ast.AssignStatement assign_statement)
             {
                 if (VariablesWareHouse.Stacks.Count > 0)
-                    VariablesWareHouse.Stacks.Peek().SymboToValue.Add(assign_statement.Lhs.Value, interpreter.Run(assign_statement.Rhs));
+                    VariablesWareHouse.Stacks.Peek().SymboToValue.Add(assign_statement.Lhs.Value, interpreter.Answer(assign_statement.Rhs));
                 else VariablesWareHouse.Global.Add(assign_statement.Lhs.Value, assign_statement.Rhs);
                 return ReaderPassword.Password;
             }
@@ -89,10 +89,10 @@ namespace MyLang
             {
                 var parameter = print_statement.Parameter;
                 if (parameter is Symbol symbol_parameter)
-                    Console.WriteLine(interpreter.Run(symbol_parameter));
+                    Console.WriteLine(interpreter.Answer(symbol_parameter));
                 else if (parameter is FunctionCall do_function)
-                    Console.WriteLine(interpreter.Run(do_function));
-                else Console.WriteLine(interpreter.Run(print_statement.Parameter));
+                    Console.WriteLine(interpreter.Answer(do_function));
+                else Console.WriteLine(interpreter.Answer(print_statement.Parameter));
                 return ReaderPassword.Password;
             }
             else return NextReader.RunCode(interpreter, block, statement);
@@ -146,7 +146,7 @@ namespace MyLang
         {
             if(statement is Ast.ExpresstionStatement exp_statement)
             {
-                interpreter.Run(exp_statement.Expression);
+                interpreter.Answer(exp_statement.Expression);
                 return ReaderPassword.Password;
             }
             else return NextReader.RunCode(interpreter, block, statement);
@@ -171,7 +171,7 @@ namespace MyLang
         {
             if(statement is ReturnStatement return_statement)
             {
-                return interpreter.Run(return_statement.Return_Value);
+                return interpreter.Answer(return_statement.Return_Value);
             }
             else return NextReader.RunCode(interpreter, block, statement);
         }

@@ -173,7 +173,7 @@ namespace MyLang
                 if (rhs == null) throw new Exception(string.Format("Let keyword need right hand side value while assigning to {0}", lhs_sym.Value));
                 else if (rhs is Ast.Exp exp)
                 {
-                    var end_sign = GetBlockOrBracketOrEnd(Ast.KeywordType.End);
+                    GetBlockOrBracketOrEnd(Ast.KeywordType.End);
                     if(IsMinus) return new Ast.AssignStatement(lhs_sym, new Ast.BinOp(Ast.BinOpType.Sub ,new Ast.Number(0),rhs));
                     return new Ast.AssignStatement(lhs_sym, rhs);
                 }
@@ -186,7 +186,7 @@ namespace MyLang
         {
             var exp = Exp1(block);
             if (exp == null) throw new Exception("print need parameter after it ");
-            var end_sign = GetBlockOrBracketOrEnd(Ast.KeywordType.End);
+           GetBlockOrBracketOrEnd(Ast.KeywordType.End);
             return new Ast.PrintStatement(exp);
         }
 
@@ -197,7 +197,7 @@ namespace MyLang
             var function_name = VariableOrFunctionCall(token,block);
             if(function_name is Ast.FunctionCall function_call)
             {
-                var left_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
+                GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
                 var function_block = new Ast.Block(function_call.FunctionName.Value);
                 var parameter_list = new List<Ast.Symbol>();
                 foreach(var par in function_call.Parameters)
@@ -206,7 +206,7 @@ namespace MyLang
                     else throw new Exception("Invalid Parameters");
                 }
                 var function_statement = new Ast.FunctionStatement(function_call.FunctionName, Block(function_block),parameter_list);
-                var right_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
+                GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
                 return function_statement;
             }
             else throw new Exception("Invalid function Call");
@@ -216,7 +216,7 @@ namespace MyLang
         {
             var exp = Exp1(block);
             if (exp == null) return null;
-            var end_sign = GetBlockOrBracketOrEnd(Ast.KeywordType.End);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.End);
             return new Ast.ReturnStatement(exp);
         }
 
@@ -224,18 +224,18 @@ namespace MyLang
         {
             var exp = Exp(block);
             if (exp == null) throw new Exception("None expression");
-            var end_sign = GetBlockOrBracketOrEnd(Ast.KeywordType.End);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.End);
             return new Ast.ExpresstionStatement(exp);
         }
 
         private Ast.IfStatement IfStatement(Ast.Block block)
         {
-            var left_barcket = GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
             var condition = Exp(block);
-            var right_barcket = GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
-            var left_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
             var if_block = Block(new Ast.Block("if"+Ast.IfStatement.IfCount++));
-            var right_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
             var if_statement = new Ast.IfStatement();
             if_statement.AddCondition(condition, if_block);
             ElifStatement(if_statement, block);
@@ -247,12 +247,12 @@ namespace MyLang
             var elif = currentToken();
             if (elif.Type != TokenType.Elif) return;
             progress();
-            var left_barcket = GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
             var condition = Exp(block);
-            var right_barcket = GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
-            var left_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
             var if_block = Block(new Ast.Block("if" + Ast.IfStatement.IfCount++));
-            var right_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
             ifStatement.AddCondition(condition, if_block);
             ElifStatement(ifStatement, block);
         }
@@ -262,34 +262,34 @@ namespace MyLang
             var els = currentToken();
             if (els.Type != TokenType.Else) return ifStatement;
             progress();
-            var left_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
             var if_block = Block(new Ast.Block("if" + Ast.IfStatement.IfCount++));
-            var right_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
             ifStatement.AddCondition(new Ast.Symbol("Else"), if_block);
             return ifStatement;
         }
 
         private Ast.WhileStatement WhileStatement(Ast.Block block)
         {
-            var left_barcket = GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
             var condition = Exp(block);
-            var right_barcket = GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
-            var left_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
             var while_block = Block(new Ast.Block("while" + Ast.WhileStatement.WhileCount++));
-            var right_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
             return new Ast.WhileStatement(condition, while_block);
         }
 
         private Ast.ForStatement ForStatement(Ast.Block block)
         {
-            var left_barcket = GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
             var initialize = ExpressionStatement(block);
             var condition = ExpressionStatement(block);
             var doItEveryTime = Exp(block);
-            var right_barcket = GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
-            var left_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Leftblock);
             var for_block = Block(new Ast.Block("For" + Ast.ForStatement.ForCount++));
-            var right_block = GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
+            GetBlockOrBracketOrEnd(Ast.KeywordType.Rightblock);
             return new Ast.ForStatement(initialize, condition, doItEveryTime, for_block);
         }
 
@@ -391,12 +391,10 @@ namespace MyLang
 
         private Ast.FunctionCall FunctionCall(Token function, Ast.Block block)
         {
-            var left_bracket = Statement_Keyword();
-            if (left_bracket.Type != Ast.KeywordType.LeftBracket) throw new Exception("Need a '(' ");
+            GetBlockOrBracketOrEnd(Ast.KeywordType.LeftBracket);
             var parameters = new List<Ast.Exp>();
             Parameters(parameters, block);
-            var right_brack = Statement_Keyword();
-            if (right_brack.Type != Ast.KeywordType.RightBracket) throw new Exception("Need a ')' ");
+            GetBlockOrBracketOrEnd(Ast.KeywordType.RightBracket);
             return new Ast.FunctionCall(function.Text, parameters);
         }
 
